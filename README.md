@@ -10,6 +10,8 @@
 * Clone this repo to your machine, then cd to it
 * Run `npm install` in that directory
 * Run `node app.js` to initialize the express app. A local server will be generated on your localhost at port 3000
-* Test it out by visiting the address 'http://localhost:3000' in your browser or running the cURL command (in another terminal): `curl -i http://localhost:3000`
+* Test it out by visiting the address 'http://localhost:3000/address=<ISO_CODE>' in your browser or running the cURL command (in another terminal): `curl -i http://localhost:3000/address=<ISO_CODE>`
+
+Example: `http://localhost:3000/address=US`
 
 Note: Our current list of supported countries comes from this link: https://msdn.microsoft.com/en-us/library/cc195167.aspx
