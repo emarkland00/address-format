@@ -62,11 +62,12 @@ const blankLine = "<blank_line>";
 // http://www.bitboost.com/ref/international-address-formats.html#Formats
 
 function optionalPart(addressPart) {
+    /// Mark the address part as optional
     return "[" + addressPart + "]";
 }
 
 function getFormat(iso) {
-    /// Gets the home address formats
+    /// Get the corresponding home address format
     var addressMatrix = [];
     switch (iso.toUpperCase()) {
         case "AU": // Australia
@@ -345,14 +346,22 @@ function getFormat(iso) {
 
 router.get("/", function (req, res) {
 	var iso = req.query.iso;
-	if (!iso) {
+	if (!iso || iso.length !== 2) {
 		res.status(400).json({
-			error: "Must specify ISO code to retrieve corresponding address format"
+			error: "Must specify ISO code (2 letter country code) to retrieve corresponding address format"
 		});
 		res.end();
 	}
 
-	res.send(getFormat(iso));
+    var code = iso.toUpperCase();
+    if (!ISO_MAP[code]) {
+        res.status(400).json({
+            error: "ISO Code " + iso + " is either unknown or unsupported at this time"
+        });
+        res.end();
+    }
+
+	res.send(getFormat(code));
 	res.end();
 });
 
