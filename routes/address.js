@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+var parseAddress = require('parse-address');
+
 const ISO_MAP = {};
 function addISO(code, name) { ISO_MAP[code] = { code: code, name: name }; }
 addISO("AU", "Australia");
@@ -364,6 +366,25 @@ router.get("/", function (req, res) {
 
 	res.send(getFormat(code));
 	res.end();
+});
+
+router.get("/parse", function (req, res) {
+    var address = req.query.address;
+    if (!address) {
+        res.status(400).json({
+            error: "Must provide US-based address to parse"
+        });
+        res.end();
+    }
+    var parsed = parseAddress.parseAddress(address);
+    if (!parsed) {
+        res.status(400).json({
+            error: "Failed to parse address"
+        });
+        res.end();
+    }
+    res.send(parsed);
+    res.end();
 });
 
 module.exports = router;
