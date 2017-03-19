@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+var parseAddress = require('parse-address');
+var format = require('string-template');
+
 const ISO_MAP = {};
 function addISO(code, name) { ISO_MAP[code] = { code: code, name: name }; }
 addISO("AU", "Australia");
@@ -56,18 +59,39 @@ const countryAbbreviation = "<country_abbreviation>";
 const province = "<province>";
 const prefecture = "<prefecture>";
 const jobTitle = "<job_title>";
+const region = "<region>";
 const blankLine = "<blank_line>";
 // List of address formats
 // https://msdn.microsoft.com/en-us/library/cc195167.aspx
 // http://www.bitboost.com/ref/international-address-formats.html#Formats
 
+/**
+* Mark the address part as optional
+* @param addressPart {string} - The address to mark
+* @returns {string} The optional address part
+**/
 function optionalPart(addressPart) {
-    /// Mark the address part as optional
     return "[" + addressPart + "]";
 }
 
+var regexLessThan = /\[?</g;
+var regexGreaterThan = />\]?/g;
+/**
+* Replace template key prefix/postfix with curly braces
+* @param val {string} - The template key to format
+* @returns {string} - The updated template key
+**/
+function templateKeyAsCurlyBrace(val) {
+    if (!val) return val;
+    return val.replace(regexLessThan, "").replace(regexGreaterThan, "");
+}
+
+/**
+* Get the corresponding home address format
+* @param iso {string} - The country ISO code
+* @returns {json} - The address format for the specified country
+**/
 function getFormat(iso) {
-    /// Get the corresponding home address format
     var addressMatrix = [];
     switch (iso.toUpperCase()) {
         case "AU": // Australia
@@ -337,16 +361,65 @@ function getFormat(iso) {
     for (var i = 0; i < addressMatrix.length; i++) {
         addressFormat["line_" + (i+1)] = addressMatrix[i].join(" ");
     }
+    return addressFormat;
+}
+
+/**
+* Parse the address as the specified country
+* @param address {string} - The raw address string-template
+* @param iso {string} - The country to parse the address as
+* @returns {json} - The parsed address format
+**/
+function parseRawAddress(address, iso) {
+    //TODO: Add more extensive support and relations from US address address to other country address formats
+    var p = parseAddress.parseAddress(address);
+    if (!p) return null;
+
     var result = {};
-    result[iso] = {
-        address_format: addressFormat
-    };
+    var line1 = [ p.number, p.prefix, p.street, p.type ];
+
+    // check for apartment stuff
+    if (p.sec_unit_type && p.sec_unit_num) {
+        line1[line1.length-1] += ',';
+        line1.push(p.sec_unit_type);
+        line1.push(p.sec_unit_num);
+    }
+
+    result[templateKeyAsCurlyBrace(address1)] = line1.join(" ").replace(/\s{2,}/g, " ");
+    result[templateKeyAsCurlyBrace(city)] = p.city + (p.state ? "," : "");
+    result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
+    result[templateKeyAsCurlyBrace(state)] = p.state;
+    return parseTemplate(getFormat(iso), result);
+}
+
+/**
+* Parse the template using specified values
+* @param template {json} - The address format template
+* @param values {json} - The values to places into the template
+* @returns {json} - The parsed template
+**/
+function parseTemplate(template, values) {
+    var result = {};
+    var i = 1;
+    for (var line in template) {
+        var formatString =  template[line].replace(regexLessThan, "{").replace(regexGreaterThan, "}");
+        var parsed = format(formatString, values).trim();
+        if (!parsed) continue;
+
+        result["line_" + i] = parsed;
+        i++;
+    }
     return result;
 }
 
-router.get("/", function (req, res) {
-	var iso = req.query.iso;
-	if (!iso || iso.length !== 2) {
+
+function toISOCode(iso) {
+    if (!iso || typeof iso !== 'string' || iso.length !== 2) return null;
+    return iso.toUpperCase();
+}
+router.get("/format", function (req, res) {
+	var iso = toISOCode(req.query.iso);
+	if (!iso) {
 		res.status(400).json({
 			error: "Must specify ISO code (2 letter country code) to retrieve corresponding address format"
 		});
@@ -361,8 +434,33 @@ router.get("/", function (req, res) {
         res.end();
     }
 
-	res.send(getFormat(code));
+    var result = {};
+    result[code] = {
+        address_format: getFormat(code)
+    };
+	res.send(result);
 	res.end();
+});
+
+router.get("/parse", function (req, res) {
+    var address = req.query.address;
+    if (!address) {
+        res.status(400).json({
+            error: "Must provide US-based address to parse"
+        });
+        res.end();
+    }
+
+    var iso = toISOCode(req.query.iso) || "US";
+    var parsed = parseRawAddress(address, iso);
+    if (!parsed) {
+        res.status(400).json({
+            error: "Failed to parse address"
+        });
+    } else {
+        res.send(parsed);
+    }
+    res.end();
 });
 
 module.exports = router;
