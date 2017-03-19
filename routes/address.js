@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var parseAddress = require('parse-address');
+var format = require('string-template');
 
 const ISO_MAP = {};
 function addISO(code, name) { ISO_MAP[code] = { code: code, name: name }; }
@@ -67,6 +68,13 @@ const blankLine = "<blank_line>";
 function optionalPart(addressPart) {
     /// Mark the address part as optional
     return "[" + addressPart + "]";
+}
+
+var regexLessThan = /\[?</g;
+var regexGreaterThan = />\]?/g;
+function templateKeyAsCurlyBrace(val) {
+    if (!val) return val;
+    return val.replace(regexLessThan, "").replace(regexGreaterThan, "");
 }
 
 function getFormat(iso) {
@@ -340,11 +348,7 @@ function getFormat(iso) {
     for (var i = 0; i < addressMatrix.length; i++) {
         addressFormat["line_" + (i+1)] = addressMatrix[i].join(" ");
     }
-    var result = {};
-    result[iso] = {
-        address_format: addressFormat
-    };
-    return result;
+    return addressFormat;
 }
 
 router.get("/", function (req, res) {
@@ -364,9 +368,42 @@ router.get("/", function (req, res) {
         res.end();
     }
 
-	res.send(getFormat(code));
+    var result = {};
+    result[code] = {
+        address_format: getFormat(code)
+    };
+	res.send(result);
 	res.end();
 });
+
+function parseUSAddress(address) {
+    var p = parseAddress.parseAddress(address);
+    if (!p) return null;
+
+    var result = {};
+    result[templateKeyAsCurlyBrace(address1)] = [ p.number, p.prefix, p.street, p.type ].join(" ");
+    result[templateKeyAsCurlyBrace(city)] = p.city;
+    result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
+    result[templateKeyAsCurlyBrace(state)] = p.state;
+    return parseTemplate(getFormat("US"), result);
+}
+
+function parseTemplate(template, values) {
+    var result = {};
+    var i = 1;
+    for (var line in template) {
+        var parsed = parseLine(template[line], values).trim();
+        if (!parsed) continue;
+        result["line_" + i] = parsed;
+        i++;
+    }
+    return result;
+}
+
+function parseLine(line, values) {
+    var formatString =  line.replace(regexLessThan, "{").replace(regexGreaterThan, "}");
+    return format(formatString, values);
+}
 
 router.get("/parse", function (req, res) {
     var address = req.query.address;
@@ -376,7 +413,7 @@ router.get("/parse", function (req, res) {
         });
         res.end();
     }
-    var parsed = parseAddress.parseAddress(address);
+    var parsed = parseUSAddress(address);
     if (!parsed) {
         res.status(400).json({
             error: "Failed to parse address"

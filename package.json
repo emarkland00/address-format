@@ -15,7 +15,8 @@
   "homepage": "https://bitbucket.org/markmore/address-format-project#readme",
   "dependencies": {
     "express": "^4.13.4",
-    "parse-address": "^0.0.6"
+    "parse-address": "^0.0.6",
+    "string-template": "^1.0.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
