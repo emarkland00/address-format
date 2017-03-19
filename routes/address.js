@@ -356,8 +356,14 @@ function parseUSAddress(address) {
     if (!p) return null;
 
     var result = {};
-    result[templateKeyAsCurlyBrace(address1)] = [ p.number, p.prefix, p.street, p.type ].join(" ").replace(/\s{2,}/g, " ");
-    result[templateKeyAsCurlyBrace(city)] = p.city;
+    var a1 = [ p.number, p.prefix, p.street, p.type ];
+    if (p.sec_unit_type && p.sec_unit_num) {
+        a1[a1.length-1] += ',';
+        a1.push(p.sec_unit_type);
+        a1.push(p.sec_unit_num);
+    }
+    result[templateKeyAsCurlyBrace(address1)] = a1.join(" ").replace(/\s{2,}/g, " ");
+    result[templateKeyAsCurlyBrace(city)] = p.city + (p.state ? "," : "");
     result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
     result[templateKeyAsCurlyBrace(state)] = p.state;
     return parseTemplate(getFormat("US"), result);
