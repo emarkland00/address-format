@@ -65,20 +65,33 @@ const blankLine = "<blank_line>";
 // https://msdn.microsoft.com/en-us/library/cc195167.aspx
 // http://www.bitboost.com/ref/international-address-formats.html#Formats
 
+/**
+* Mark the address part as optional
+* @param addressPart {string} - The address to mark
+* @returns {string} The optional address part
+**/
 function optionalPart(addressPart) {
-    /// Mark the address part as optional
     return "[" + addressPart + "]";
 }
 
 var regexLessThan = /\[?</g;
 var regexGreaterThan = />\]?/g;
+/**
+* Replace template key prefix/postfix with curly braces
+* @param val {string} - The template key to format
+* @returns {string} - The updated template key
+**/
 function templateKeyAsCurlyBrace(val) {
     if (!val) return val;
     return val.replace(regexLessThan, "").replace(regexGreaterThan, "");
 }
 
+/**
+* Get the corresponding home address format
+* @param iso {string} - The country ISO code
+* @returns {json} - The address format for the specified country
+**/
 function getFormat(iso) {
-    /// Get the corresponding home address format
     var addressMatrix = [];
     switch (iso.toUpperCase()) {
         case "AU": // Australia
@@ -351,39 +364,50 @@ function getFormat(iso) {
     return addressFormat;
 }
 
+/**
+* Parse the address, assuming the US format
+* @param address {string} - The raw address string-template
+* @returns {json} - The parsed address format
+**/
 function parseUSAddress(address) {
     var p = parseAddress.parseAddress(address);
     if (!p) return null;
 
     var result = {};
-    var a1 = [ p.number, p.prefix, p.street, p.type ];
+    var line1 = [ p.number, p.prefix, p.street, p.type ];
+
+    // check for apartment stuff
     if (p.sec_unit_type && p.sec_unit_num) {
-        a1[a1.length-1] += ',';
-        a1.push(p.sec_unit_type);
-        a1.push(p.sec_unit_num);
+        line1[line1.length-1] += ',';
+        line1.push(p.sec_unit_type);
+        line1.push(p.sec_unit_num);
     }
-    result[templateKeyAsCurlyBrace(address1)] = a1.join(" ").replace(/\s{2,}/g, " ");
+
+    result[templateKeyAsCurlyBrace(address1)] = line1.join(" ").replace(/\s{2,}/g, " ");
     result[templateKeyAsCurlyBrace(city)] = p.city + (p.state ? "," : "");
     result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
     result[templateKeyAsCurlyBrace(state)] = p.state;
     return parseTemplate(getFormat("US"), result);
 }
 
+/**
+* Parse the template using specified values
+* @param template {json} - The address format template
+* @param values {json} - The values to places into the template
+* @returns {json} - The parsed template
+**/
 function parseTemplate(template, values) {
     var result = {};
     var i = 1;
     for (var line in template) {
-        var parsed = parseLine(template[line], values).trim();
+        var formatString =  template[line].replace(regexLessThan, "{").replace(regexGreaterThan, "}");
+        var parsed = format(formatString, values).trim();
         if (!parsed) continue;
+
         result["line_" + i] = parsed;
         i++;
     }
     return result;
-}
-
-function parseLine(line, values) {
-    var formatString =  line.replace(regexLessThan, "{").replace(regexGreaterThan, "}");
-    return format(formatString, values);
 }
 
 router.get("/", function (req, res) {
