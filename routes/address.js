@@ -56,6 +56,7 @@ const countryAbbreviation = "<country_abbreviation>";
 const province = "<province>";
 const prefecture = "<prefecture>";
 const jobTitle = "<job_title>";
+const region = "<region>";
 const blankLine = "<blank_line>";
 // List of address formats
 // https://msdn.microsoft.com/en-us/library/cc195167.aspx
