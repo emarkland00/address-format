@@ -351,6 +351,35 @@ function getFormat(iso) {
     return addressFormat;
 }
 
+function parseUSAddress(address) {
+    var p = parseAddress.parseAddress(address);
+    if (!p) return null;
+
+    var result = {};
+    result[templateKeyAsCurlyBrace(address1)] = [ p.number, p.prefix, p.street, p.type ].join(" ").replace(/\s{2,}/g, " ");
+    result[templateKeyAsCurlyBrace(city)] = p.city;
+    result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
+    result[templateKeyAsCurlyBrace(state)] = p.state;
+    return parseTemplate(getFormat("US"), result);
+}
+
+function parseTemplate(template, values) {
+    var result = {};
+    var i = 1;
+    for (var line in template) {
+        var parsed = parseLine(template[line], values).trim();
+        if (!parsed) continue;
+        result["line_" + i] = parsed;
+        i++;
+    }
+    return result;
+}
+
+function parseLine(line, values) {
+    var formatString =  line.replace(regexLessThan, "{").replace(regexGreaterThan, "}");
+    return format(formatString, values);
+}
+
 router.get("/", function (req, res) {
 	var iso = req.query.iso;
 	if (!iso || iso.length !== 2) {
@@ -376,35 +405,6 @@ router.get("/", function (req, res) {
 	res.end();
 });
 
-function parseUSAddress(address) {
-    var p = parseAddress.parseAddress(address);
-    if (!p) return null;
-
-    var result = {};
-    result[templateKeyAsCurlyBrace(address1)] = [ p.number, p.prefix, p.street, p.type ].join(" ");
-    result[templateKeyAsCurlyBrace(city)] = p.city;
-    result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
-    result[templateKeyAsCurlyBrace(state)] = p.state;
-    return parseTemplate(getFormat("US"), result);
-}
-
-function parseTemplate(template, values) {
-    var result = {};
-    var i = 1;
-    for (var line in template) {
-        var parsed = parseLine(template[line], values).trim();
-        if (!parsed) continue;
-        result["line_" + i] = parsed;
-        i++;
-    }
-    return result;
-}
-
-function parseLine(line, values) {
-    var formatString =  line.replace(regexLessThan, "{").replace(regexGreaterThan, "}");
-    return format(formatString, values);
-}
-
 router.get("/parse", function (req, res) {
     var address = req.query.address;
     if (!address) {
@@ -413,14 +413,15 @@ router.get("/parse", function (req, res) {
         });
         res.end();
     }
+
     var parsed = parseUSAddress(address);
     if (!parsed) {
         res.status(400).json({
             error: "Failed to parse address"
         });
-        res.end();
+    } else {
+        res.send(parsed);
     }
-    res.send(parsed);
     res.end();
 });
 
