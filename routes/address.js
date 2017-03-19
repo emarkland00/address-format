@@ -365,11 +365,13 @@ function getFormat(iso) {
 }
 
 /**
-* Parse the address, assuming the US format
+* Parse the address as the specified country
 * @param address {string} - The raw address string-template
+* @param iso {string} - The country to parse the address as
 * @returns {json} - The parsed address format
 **/
-function parseUSAddress(address) {
+function parseRawAddress(address, iso) {
+    //TODO: Add more extensive support and relations from US address address to other country address formats
     var p = parseAddress.parseAddress(address);
     if (!p) return null;
 
@@ -387,7 +389,7 @@ function parseUSAddress(address) {
     result[templateKeyAsCurlyBrace(city)] = p.city + (p.state ? "," : "");
     result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
     result[templateKeyAsCurlyBrace(state)] = p.state;
-    return parseTemplate(getFormat("US"), result);
+    return parseTemplate(getFormat(iso), result);
 }
 
 /**
@@ -410,9 +412,14 @@ function parseTemplate(template, values) {
     return result;
 }
 
-router.get("/", function (req, res) {
-	var iso = req.query.iso;
-	if (!iso || iso.length !== 2) {
+
+function toISOCode(iso) {
+    if (!iso || typeof iso !== 'string' || iso.length !== 2) return null;
+    return iso.toUpperCase();
+}
+router.get("/format", function (req, res) {
+	var iso = toISOCode(req.query.iso);
+	if (!iso) {
 		res.status(400).json({
 			error: "Must specify ISO code (2 letter country code) to retrieve corresponding address format"
 		});
@@ -444,7 +451,8 @@ router.get("/parse", function (req, res) {
         res.end();
     }
 
-    var parsed = parseUSAddress(address);
+    var iso = toISOCode(req.query.iso) || "US";
+    var parsed = parseRawAddress(address, iso);
     if (!parsed) {
         res.status(400).json({
             error: "Failed to parse address"
