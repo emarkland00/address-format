@@ -16,6 +16,7 @@ router.get("/format", function (req, res) {
 			error: "Must specify ISO code (2 letter country code) to retrieve corresponding address format"
 		});
 		res.end();
+        return;
 	}
 
     var code = iso.toUpperCase();
@@ -24,6 +25,7 @@ router.get("/format", function (req, res) {
             error: "ISO Code " + iso + " is either unknown or unsupported at this time"
         });
         res.end();
+        return;
     }
 
     var result = {};
@@ -41,6 +43,7 @@ router.get("/parse", function (req, res) {
             error: "Must provide US-based address to parse"
         });
         res.end();
+        return;
     }
 
     var iso = capitalizeISOCode(req.query.iso || "US");
@@ -49,15 +52,18 @@ router.get("/parse", function (req, res) {
             error: "ISO Code " + iso + " is either unknown or unsupported at this time"
         });
         res.end();
+        return;
     }
+
     var parsed = parser.parseRawAddress(address, iso);
     if (!parsed) {
         res.status(400).json({
             error: "Failed to parse address"
         });
-    } else {
-        res.send(parsed);
+        return
     }
+
+    res.send(parsed);
     res.end();
 });
 
