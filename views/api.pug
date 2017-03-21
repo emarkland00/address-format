@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1= title
+  
+  h2 The following routes are available
+  
+  h3 Format
+  pre /api/format?iso=XX
+  XX should be the country ISO code  
+  p Example
+    a(href='/api/format?iso=US') /api/format?iso=US
+  
+  h3 parse
+  pre /api/parse?address=some_us_address_string
+    
+  p Example
+    a(href='/api/parse?address=123 Main Street Apt 6H, New York, NY 10001') /api/parse?address=123 Main Street Apt 6H, New York, NY 10001

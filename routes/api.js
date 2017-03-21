@@ -9,6 +9,10 @@ function capitalizeISOCode(iso) {
     return iso.toUpperCase();
 }
 
+router.get("/", function(req, res) {
+    res.render('api', { title: 'Address Format API' });
+});
+
 router.get("/format", function (req, res) {
 	var iso = capitalizeISOCode(req.query.iso || '');
 	if (!iso) {
