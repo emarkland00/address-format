@@ -9,16 +9,9 @@ var routes = {
     }
 };
 
-function selectRoute(event) {
+function selectRouteEvent(event) {
     // stops the page from refreshing after processing event
     event.preventDefault();
-
-    // ensure description box is being rendered. otherwise render it
-    let descriptionBox = document.getElementById('description-container');
-    if (descriptionBox === null) {
-        console.log("Unable to find the description container.");
-        return;
-    }
 
     // get path to render from the defined routes json
     let route = event.target.text;
@@ -26,6 +19,17 @@ function selectRoute(event) {
     let selectedRoute = routes[selectedName];
     if (selectedRoute === undefined) {
         console.log('Unknown route name ' + selectedName + ' was specified');
+        return;
+    }
+
+    selectRoute(selectedRoute);
+}
+
+function selectRoute(selectedRoute) {
+    // ensure description box is being rendered. otherwise render it
+    let descriptionBox = document.getElementById('description-container');
+    if (descriptionBox === null) {
+        console.log("Unable to find the description container.");
         return;
     }
 
@@ -56,12 +60,18 @@ function addRouteListener(idName) {
     var el = document.getElementById(idName);
     if (el === null) return;
     if (el.addEventListener) {
-        el.addEventListener('click', selectRoute, false);
+        el.addEventListener('click', selectRouteEvent, false);
     } else if (el.attachEvent) {
-        el.attachEvent('click', selectRoute);
+        el.attachEvent('click', selectRouteEvent);
     }
 }
 
+let firstElementSelected = false;
 for (let r in routes) {
     addRouteListener(r);
+
+    if (firstElementSelected) continue;
+    var route = routes[r];
+    selectRoute(route);
+    firstElementSelected = true;
 }
