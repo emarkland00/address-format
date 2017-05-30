@@ -1,11 +1,36 @@
+// Registered API routes
 var routes = {
     format: {
         name: 'format',
-        description: 'Shows the address format of the specified country'
+        description: 'Shows the address format of the specified country',
+        request: {
+            template: function() {
+                var element = null;
+                return function() {
+                    if (element === null) {
+                        var element = document.createElement('div');
+                        element.innerHTML = "/format?iso=<input class='iso' type='text' />";
+                    }
+                    return element;
+                };
+            }
+        }
     },
     parse: {
         name: 'parse',
-        description: 'Parse the US-based address to the specified address format'
+        description: 'Parse the US-based address to the specified address format',
+        request: {
+            template: function() {
+                var element = null;
+                return function() {
+                    if (element == null) {
+                        element = document.createElement('div');
+                        element.innerHTML = "/parse?address=<input type='text' class='input-address' />&iso=<input type='text' class='input-iso' />";
+                    }
+                    return element;
+                };
+            }
+        }
     }
 };
 
