@@ -2,7 +2,7 @@ doctype html
 html
   head
     meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
-    title 2 Column Layout — Left Menu
+    title Address Format API
     link(type='text/css', href='/stylesheets/style.css', rel='stylesheet')
       
   body
@@ -15,14 +15,17 @@ html
               input(type='text')
       nav#nav
         .innertube
-          h3 Available Routes
+          h3 Routes
           ul
             li.path-item
-              a(href='#format') /format
+              a#format(href='') /format
             li.path-item
-              a(href='#parse') /parse
+              a#parse(href='') /parse
               
-          // - var path = { name: '/format', description: 'Shows the address format of the specified country' }
+          #description-container
           if path
+            h3 Description
             h4#path-name #{path.name}          
             span#path-description #{path.description}
+            
+  script(src='/js/index.js')
