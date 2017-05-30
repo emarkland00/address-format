@@ -1,10 +1,34 @@
 extends layout
-
+// checkout layoutit.zip inside downloads folder
+www.layoutit.com/build
 block content
-  h1= title
+  h2= title
   
-  h2 The following routes are available
+  nav#route_container Routes
+    ul#routes
+      li.route_item.
+        /format
+      li.route_item.
+        /parse
+        
+  // description
+  div#route_description
   
+  // action input (load from JS)
+  div#action
+    // some instruction -- dropdown 
+    // OR
+    // some instruction
+    // textbox
+  
+  // Request (initially hidden)
+  div#request 
+  // filled by JS
+  
+  // Response (initally hidden)
+  div#response 
+  // filled by JS
+      
   h3 Format
   pre /api/format?iso=XX
   XX should be the country ISO code  
