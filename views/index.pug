@@ -11,8 +11,15 @@ html
         #content
           .innertube
             h1 Address Format API
-            p
-              input(type='text')
+            p#request-container
+              span Request&#58;
+              span#request-template
+                if path
+                  #{request.template}
+                  
+              button#request-submit Submit
+                
+            p#response-container
       nav#nav
         .innertube
           h3 Routes

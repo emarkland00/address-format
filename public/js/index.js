@@ -8,7 +8,7 @@ var routes = {
                 var element = null;
                 return function() {
                     if (element === null) {
-                        var element = document.createElement('div');
+                        element = document.createElement('div');
                         element.innerHTML = "/format?iso=<input class='iso' type='text' />";
                     }
                     return element;
@@ -48,6 +48,7 @@ function selectRouteEvent(event) {
     }
 
     selectRoute(selectedRoute);
+    displayRequestTemplate(selectedRoute);
 }
 
 function selectRoute(selectedRoute) {
@@ -81,6 +82,30 @@ function selectRoute(selectedRoute) {
     desc.textContent = selectedRoute.description;
 }
 
+function displayRequestTemplate(selectedRoute) {
+    // check if current event is being shown
+    let pathName = 'path-name';
+    let name = document.getElementById(pathName);
+    if (name === null) {
+        console.log('Must have current route selected.');
+        return;
+    }
+
+    let containerName = 'request-container';
+    let requestContainer = document.getElementById(containerName);
+
+    // select template node
+    let templateName = 'request-template';
+    let requestTemplate = document.getElementById(templateName);
+
+    // clear all existing children
+    while (requestTemplate.firstChild) { requestTemplate.removeChild(requestTemplate.firstChild); }
+
+    // append current route as child
+    let templateFn = selectedRoute.request.template();
+    requestTemplate.appendChild(templateFn());
+}
+
 function addRouteListener(idName) {
     var el = document.getElementById(idName);
     if (el === null) return;
@@ -98,5 +123,6 @@ for (let r in routes) {
     if (firstElementSelected) continue;
     var route = routes[r];
     selectRoute(route);
+    displayRequestTemplate(route);
     firstElementSelected = true;
 }
