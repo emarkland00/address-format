@@ -41,7 +41,7 @@ router.get("/format", function (req, res) {
 });
 
 router.get("/parse", function (req, res) {
-    var address = req.query.address;
+    var address = decodeURIComponent(req.query.address);
     if (!address) {
         res.status(400).json({
             error: "Must provide US-based address to parse"

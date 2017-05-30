@@ -9,7 +9,7 @@ var routes = {
                 return function() {
                     if (element === null) {
                         element = document.createElement('div');
-                        element.innerHTML = "/format?iso=<input class='iso' type='text' />";
+                        element.innerHTML = "/format?iso=<input class='input input-iso' type='text' />";
                     }
                     return element;
                 };
@@ -25,7 +25,7 @@ var routes = {
                 return function() {
                     if (element == null) {
                         element = document.createElement('div');
-                        element.innerHTML = "/parse?address=<input type='text' class='input-address' />&iso=<input type='text' class='input-iso' />";
+                        element.innerHTML = "/parse?address=<input type='text' class='input input-address' />&iso=<input type='text' class='input input-iso' />";
                     }
                     return element;
                 };
@@ -34,6 +34,9 @@ var routes = {
     }
 };
 
+/**
+* On-click handler for route events
+**/
 function selectRouteEvent(event) {
     // stops the page from refreshing after processing event
     event.preventDefault();
@@ -51,6 +54,80 @@ function selectRouteEvent(event) {
     displayRequestTemplate(selectedRoute);
 }
 
+function processAJAXRequest(event) {
+    event.preventDefault();
+
+    // find all class items containing input in the request container
+    let items = document.getElementsByClassName('input');
+    if (!items || !items.length) return;
+
+    // check if current event is being shown
+    let pathName = 'path-name';
+    let name = document.getElementById(pathName);
+    if (name === null) return;
+    let route = routes[name.textContent];
+
+    // fill in json payload
+    let classRegex = /input\-([a-z]+)/;
+    let qs = [];
+    for (let i = 0; i < items.length; i++) {
+        let item = items[i];
+        let match = classRegex.exec(item.className);
+        if (match) {
+            qs.push(match[1] + '=' + item.value);
+        }
+    }
+
+    var urlPath = '/api/' + route.name + '?' + qs.join('&');
+
+    // create API request
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open('GET', urlPath, true);
+    xmlhttp.setRequestHeader('Accept', 'application/json');
+    xmlhttp.setRequestHeader('Content-Type', 'application/json');
+
+    // set callback
+    xmlhttp.onreadystatechange = function(xhr) {
+        if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+            if (xmlhttp.status == 200) {
+                // get json response
+                var responseJSON = JSON.parse(xhr.target.response);
+                displayResponse(route, urlPath, responseJSON);
+            }
+        }
+    };
+
+    // make request
+    xmlhttp.send();
+}
+
+/**
+* Renders the response json from the API
+**/
+function displayResponse(route, urlPath, json) {
+    // Get response json container
+    let responseName = 'response-container';
+    let responseContainer = document.getElementById(responseName);
+
+    // empty it out
+    while (responseContainer.firstChild) {
+        responseContainer.removeChild(responseContainer.firstChild);
+    }
+
+    // show url
+    let req = document.createElement('div');
+    req.textContent = urlPath;
+    responseContainer.appendChild(req);
+
+    // show json response
+    let res = document.createElement('div');
+    res.textContent = JSON.stringify(json);
+    responseContainer.appendChild(res);
+}
+
+/**
+* Selects the route via the navigation column
+**/
 function selectRoute(selectedRoute) {
     // ensure description box is being rendered. otherwise render it
     let descriptionBox = document.getElementById('description-container');
@@ -82,6 +159,9 @@ function selectRoute(selectedRoute) {
     desc.textContent = selectedRoute.description;
 }
 
+/**
+* Displays the current selected route via the API explorer
+**/
 function displayRequestTemplate(selectedRoute) {
     // check if current event is being shown
     let pathName = 'path-name';
@@ -106,23 +186,32 @@ function displayRequestTemplate(selectedRoute) {
     requestTemplate.appendChild(templateFn());
 }
 
+/**
+* Method to add a click-event listener to the id
+**/
 function addRouteListener(idName) {
-    var el = document.getElementById(idName);
+    let el = document.getElementById(idName);
     if (el === null) return;
-    if (el.addEventListener) {
-        el.addEventListener('click', selectRouteEvent, false);
-    } else if (el.attachEvent) {
-        el.attachEvent('click', selectRouteEvent);
-    }
+
+    let listener = el.addEventListener || el.attachEvent;
+    listener('click', selectRouteEvent, false);
 }
 
+// start up this script by selecting the first element in the list of routes
 let firstElementSelected = false;
 for (let r in routes) {
     addRouteListener(r);
 
     if (firstElementSelected) continue;
-    var route = routes[r];
+    let route = routes[r];
     selectRoute(route);
     displayRequestTemplate(route);
     firstElementSelected = true;
+}
+
+// register on-click event for request submit button
+let requestSubmit = document.getElementById('request-submit');
+if (requestSubmit) {
+    let listener = requestSubmit.addEventListener || requestSubmit.attachEvent;
+    listener('click', processAJAXRequest, false);
 }
