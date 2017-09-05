@@ -43,6 +43,8 @@ function selectRouteEvent(event) {
 
     // get path to render from the defined routes json
     let route = event.target.text;
+    if (route === undefined) return;
+
     let selectedName = route.substr(1);
     let selectedRoute = routes[selectedName];
     if (selectedRoute === undefined) {
@@ -73,11 +75,12 @@ function processAJAXRequest(event) {
     for (let i = 0; i < items.length; i++) {
         let item = items[i];
         let match = classRegex.exec(item.className);
-        if (match) {
+        if (match && item.value) {
             qs.push(match[1] + '=' + item.value);
         }
     }
 
+    if (qs.length === 0) return;
     var urlPath = '/api/' + route.name + '?' + qs.join('&');
 
     // create API request
@@ -115,12 +118,12 @@ function displayResponse(route, urlPath, json) {
     }
 
     // show url
-    let req = document.createElement('div');
+    let req = document.createElement('code');
     req.textContent = urlPath;
     responseContainer.appendChild(req);
 
     // show json response
-    let res = document.createElement('div');
+    let res = document.createElement('pre');
     res.textContent = JSON.stringify(json);
     responseContainer.appendChild(res);
 }
@@ -131,7 +134,7 @@ function displayResponse(route, urlPath, json) {
 function selectRoute(selectedRoute) {
     // ensure description box is being rendered. otherwise render it
     let descriptionBox = document.getElementById('description-container');
-    if (descriptionBox === null) {
+    if (!descriptionBox) {
         console.log("Unable to find the description container.");
         return;
     }
@@ -139,7 +142,7 @@ function selectRoute(selectedRoute) {
     // check if current event is being shown
     let pathName = 'path-name';
     let name = document.getElementById(pathName);
-    if (name === null) {
+    if (!name) {
         name = document.createElement('div');
         name.setAttribute('id', pathName);
         descriptionBox.appendChild(name);
@@ -151,7 +154,7 @@ function selectRoute(selectedRoute) {
 
     let pathDescription = 'path-description';
     let desc = document.getElementById(pathDescription);
-    if (desc === null) {
+    if (!desc) {
         desc = document.createElement('div');
         desc.setAttribute('id', pathDescription);
         descriptionBox.appendChild(desc);
@@ -166,7 +169,7 @@ function displayRequestTemplate(selectedRoute) {
     // check if current event is being shown
     let pathName = 'path-name';
     let name = document.getElementById(pathName);
-    if (name === null) {
+    if (!name) {
         console.log('Must have current route selected.');
         return;
     }
@@ -191,7 +194,7 @@ function displayRequestTemplate(selectedRoute) {
 **/
 function addRouteListener(idName) {
     let el = document.getElementById(idName);
-    if (el === null) return;
+    if (!el) return;
 
     let listener = el.addEventListener || el.attachEvent;
     listener('click', selectRouteEvent, false);
