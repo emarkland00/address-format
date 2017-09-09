@@ -124,7 +124,7 @@ function displayResponse(route, urlPath, json) {
 
     // show json response
     let res = document.createElement('pre');
-    res.textContent = JSON.stringify(json);
+    res.textContent = JSON.stringify(json, null, 2);
     responseContainer.appendChild(res);
 }
 
