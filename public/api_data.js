@@ -33,6 +33,18 @@ define({ "api": [
         ]
       }
     },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid ISO-code has been entered</p>"
+          }
+        ]
+      }
+    },
     "filename": "routes/api.js",
     "groupTitle": "API"
   },
@@ -73,6 +85,18 @@ define({ "api": [
             "optional": false,
             "field": "json",
             "description": "<p>The address restructured to match the specified format</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>Invalid ISO or US-based address code entered</p>"
           }
         ]
       }
