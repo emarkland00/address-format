@@ -21,6 +21,7 @@ router.get("/", function(req, res) {
 * @apiDescription Get address format for country code
 * @apiParam {string} iso Country ISO code
 * @apiSuccess {json} json The address format
+* @apiError BadRequest Invalid ISO-code has been entered
 **/
 function getAddressFormat(req, res) {
     var iso = capitalizeISOCode(req.query.iso || '');
@@ -59,6 +60,7 @@ router.get("/format", getAddressFormat);
 * @apiParam {string} iso Country ISO code
 * @apiParam {string} address The US-based address to convert
 * @apiSuccess {json} json The address restructured to match the specified format
+* @apiError BadRequest Invalid ISO or US-based address code entered
 **/
 function parseAddress(req, res) {
     var address = decodeURIComponent(req.query.address);
