@@ -3,7 +3,7 @@ define({
   "version": "0.1.0",
   "description": "API for determining address formats as well as how to convert from one address format to another",
   "title": "Address Format API",
-  "url": "https://addressformat.errolmarkland/api",
+  "url": "https://addressformat.errolmarkland.com/api",
   "order": [
     "Format",
     "Parse"
@@ -17,7 +17,7 @@ define({
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2017-09-10T03:16:38.014Z",
+    "time": "2017-09-10T03:23:04.442Z",
     "url": "http://apidocjs.com",
     "version": "0.17.6"
   }
