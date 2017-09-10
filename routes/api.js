@@ -13,8 +13,17 @@ router.get("/", function(req, res) {
     res.render('api', { title: 'Address Format API' });
 });
 
-router.get("/format", function (req, res) {
-	var iso = capitalizeISOCode(req.query.iso || '');
+/**
+* @api {get} /format?iso=<iso> /format
+* @apiVersion 0.1.0
+* @apiName Format
+* @apiGroup API
+* @apiDescription Get address format for country code
+* @apiParam {string} iso Country ISO code
+* @apiSuccess {json} json The address format
+**/
+function getAddressFormat(req, res) {
+    var iso = capitalizeISOCode(req.query.iso || '');
 	if (!iso) {
 		res.status(400).json({
 			error: "Must specify ISO code (2 letter country code) to retrieve corresponding address format"
@@ -38,9 +47,20 @@ router.get("/format", function (req, res) {
     };
 	res.send(result);
 	res.end();
-});
+}
+router.get("/format", getAddressFormat);
 
-router.get("/parse", function (req, res) {
+/**
+* @api {get} /parse?iso=<iso>&address=<address> /parse
+* @apiName Parse
+* @apiVersion 0.1.0
+* @apiGroup API
+* @apiDescription Parse US-based address into specified country address format. In the future, support for additional address formats will be added
+* @apiParam {string} iso Country ISO code
+* @apiParam {string} address The US-based address to convert
+* @apiSuccess {json} json The address restructured to match the specified format
+**/
+function parseAddress(req, res) {
     var address = decodeURIComponent(req.query.address);
     if (!address) {
         res.status(400).json({
@@ -69,6 +89,7 @@ router.get("/parse", function (req, res) {
 
     res.send(parsed);
     res.end();
-});
+}
+router.get("/parse", parseAddress);
 
 module.exports = router;
