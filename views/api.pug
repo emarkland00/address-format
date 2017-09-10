@@ -1,0 +1,42 @@
+extends layout
+// checkout layoutit.zip inside downloads folder
+www.layoutit.com/build
+block content
+  h2= title
+  
+  nav#route_container Routes
+    ul#routes
+      li.route_item.
+        /format
+      li.route_item.
+        /parse
+        
+  // description
+  div#route_description
+  
+  // action input (load from JS)
+  div#action
+    // some instruction -- dropdown 
+    // OR
+    // some instruction
+    // textbox
+  
+  // Request (initially hidden)
+  div#request 
+  // filled by JS
+  
+  // Response (initally hidden)
+  div#response 
+  // filled by JS
+      
+  h3 Format
+  pre /api/format?iso=XX
+  XX should be the country ISO code  
+  p Example
+    a(href='/api/format?iso=US') /api/format?iso=US
+  
+  h3 parse
+  pre /api/parse?address=some_us_address_string
+    
+  p Example
+    a(href='/api/parse?address=123 Main Street Apt 6H, New York, NY 10001') /api/parse?address=123 Main Street Apt 6H, New York, NY 10001
