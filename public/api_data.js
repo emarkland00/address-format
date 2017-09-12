@@ -1,7 +1,7 @@
 define({ "api": [
   {
     "type": "get",
-    "url": "/format?iso=<iso>",
+    "url": "/format/<iso>",
     "title": "/format",
     "version": "0.1.0",
     "name": "Format",
