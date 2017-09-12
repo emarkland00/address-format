@@ -1,7 +1,7 @@
 define({ "api": [
   {
     "type": "get",
-    "url": "/format/<iso>",
+    "url": "/format?iso=<iso>",
     "title": "/format",
     "version": "0.1.0",
     "name": "Format",
@@ -45,12 +45,19 @@ define({ "api": [
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Example url:",
+        "content": "https://addressformat.errolmarkland.com/api/format?iso=US",
+        "type": "https"
+      }
+    ],
     "filename": "routes/api.js",
     "groupTitle": "API"
   },
   {
     "type": "get",
-    "url": "/parse?iso=<iso>&address=<address>",
+    "url": "/parse?address=<address>&iso=<iso>",
     "title": "/parse",
     "name": "Parse",
     "version": "0.1.0",
@@ -101,6 +108,13 @@ define({ "api": [
         ]
       }
     },
+    "examples": [
+      {
+        "title": "Example URL:",
+        "content": "https://addressformat.errolmarkland.com/api/parse?address=123 Main Street, New York, NY 10001&iso=JP",
+        "type": "https"
+      }
+    ],
     "filename": "routes/api.js",
     "groupTitle": "API"
   }
