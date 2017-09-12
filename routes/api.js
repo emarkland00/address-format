@@ -22,6 +22,8 @@ router.get("/", function(req, res) {
 * @apiParam {string} iso Country ISO code
 * @apiSuccess {json} json The address format
 * @apiError BadRequest Invalid ISO-code has been entered
+* @apiExample {https} Example url:
+*       https://addressformat.errolmarkland.com/api/format?iso=US
 **/
 function getAddressFormat(req, res) {
     var iso = capitalizeISOCode(req.query.iso || '');
@@ -52,7 +54,7 @@ function getAddressFormat(req, res) {
 router.get("/format", getAddressFormat);
 
 /**
-* @api {get} /parse?iso=<iso>&address=<address> /parse
+* @api {get} /parse?address=<address>&iso=<iso> /parse
 * @apiName Parse
 * @apiVersion 0.1.0
 * @apiGroup API
@@ -61,6 +63,8 @@ router.get("/format", getAddressFormat);
 * @apiParam {string} address The US-based address to convert
 * @apiSuccess {json} json The address restructured to match the specified format
 * @apiError BadRequest Invalid ISO or US-based address code entered
+* @apiExample {https} Example URL:
+*       https://addressformat.errolmarkland.com/api/parse?address=123 Main Street, New York, NY 10001&iso=JP
 **/
 function parseAddress(req, res) {
     var address = decodeURIComponent(req.query.address);
@@ -86,7 +90,7 @@ function parseAddress(req, res) {
         res.status(400).json({
             error: "Failed to parse address"
         });
-        return
+        return;
     }
 
     res.send(parsed);
