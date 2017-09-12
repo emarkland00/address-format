@@ -86,7 +86,7 @@ function parseAddress(req, res) {
         res.status(400).json({
             error: "Failed to parse address"
         });
-        return
+        return;
     }
 
     res.send(parsed);
