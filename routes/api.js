@@ -14,7 +14,7 @@ router.get("/", function(req, res) {
 });
 
 /**
-* @api {get} /format?iso=<iso> /format
+* @api {get} /format/<iso> /format
 * @apiVersion 0.1.0
 * @apiName Format
 * @apiGroup API
@@ -24,7 +24,7 @@ router.get("/", function(req, res) {
 * @apiError BadRequest Invalid ISO-code has been entered
 **/
 function getAddressFormat(req, res) {
-    var iso = capitalizeISOCode(req.query.iso || '');
+    var iso = capitalizeISOCode(req.params.iso || '');
 	if (!iso) {
 		res.status(400).json({
 			error: "Must specify ISO code (2 letter country code) to retrieve corresponding address format"
@@ -49,7 +49,7 @@ function getAddressFormat(req, res) {
 	res.send(result);
 	res.end();
 }
-router.get("/format", getAddressFormat);
+router.get("/format/:iso", getAddressFormat);
 
 /**
 * @api {get} /parse?iso=<iso>&address=<address> /parse
