@@ -1,5 +1,6 @@
 const assert = require('assert');
 const should = require('should');
+
 const addressParser = require("../lib/address");
 
 describe('AddressParser', function() {
