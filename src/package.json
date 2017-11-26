@@ -22,7 +22,8 @@
     "pug": "~2.0.0-beta10",
     "serve-favicon": "~2.3.2",
     "parse-address": "^0.0.6",
-    "string-template": "^1.0.0"
+    "string-template": "^1.0.0",
+    "apidoc": "^0.17.6"
   },
   "devDependencies": {
     "nodemon": "^1.11.0",

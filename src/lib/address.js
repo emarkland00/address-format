@@ -100,6 +100,18 @@ AddressParser.prototype.parseRawAddress = function(address, iso) {
     return parseTemplate(this.getFormat(iso), result);
 }
 
+let LIBPOSTAL_MAPPING = {
+  "house_number": address1,
+  "house": address1,
+  "road": address1,
+  "suburb": city,
+  "city_district": city,
+  "city": city,
+  "state_district": state,
+  "postalCode": postalCode,
+  "country": country
+}
+
 let API_CREDENTIALS = null;
 function loadAPICredentials(callback) {
     if (API_CREDENTIALS) return true;
@@ -300,6 +312,7 @@ function populateISOMap() {
         [ postalCode, city ],
         [ optionalPart(country) ]
     ]);
+    
     addISO("HU", "Hungary", [
         [ honorific, lastName, firstName ],
         [ city ],
