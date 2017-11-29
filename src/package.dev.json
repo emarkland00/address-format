@@ -3,7 +3,10 @@
   "version": "1.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "prestart": "apidoc -f api.js -i routes/ -o public/",
+    "start": "npm run lint & npm run test & node ./bin/www",
+    "test": "mocha",
+    "lint": "jshint lib/address.js routes/api.js app.js"
   },
   "repository": {
     "type": "git",
