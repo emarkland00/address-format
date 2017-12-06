@@ -70,7 +70,7 @@ AddressParser.prototype.getFormat = function(iso) {
         addressFormat["line_" + (i+1)] = addressMatrix[i].join(" ");
     }
     return addressFormat;
-}
+};
 
 /**
 * Parse the address as the specified country
@@ -98,7 +98,7 @@ AddressParser.prototype.parseRawAddress = function(address, iso) {
     result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
     result[templateKeyAsCurlyBrace(state)] = p.state;
     return parseTemplate(this.getFormat(iso), result);
-}
+};
 
 let API_CREDENTIALS = null;
 function loadAPICredentials(callback) {
@@ -432,6 +432,6 @@ function populateISOMap() {
 */
 AddressParser.prototype.isISOSupported = function(iso) {
     return !!ISO_MAP[iso];
-}
+};
 
 exports.AddressParser = AddressParser;
