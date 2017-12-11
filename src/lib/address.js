@@ -112,6 +112,12 @@ let LIBPOSTAL_MAPPING = {
   "country": country
 }
 
+// address1 => <house_number> <road> <house> <[address]
+// city => <city> <city_district>
+// state => <state> <state_district>
+// zip => <postalCode>
+// iso => country (as ISO?)
+
 let API_CREDENTIALS = null;
 function loadAPICredentials(callback) {
     if (API_CREDENTIALS) return true;
@@ -134,6 +140,14 @@ AddressParser.prototype.parseRawAddressAPI = function(address, iso, callback) {
     processRequest(API_CREDENTIALS.base_url, path, function (data) {
         var json = JSON.parse(data);
 
+        // TODO: Test this
+        let result = {
+          address_1: getTrimmedValue(json.house_number) ' ' +  getTrimmedValue(json.road) + getTrimmedValue(json.house) + getTrimmedValue(json.address),
+          city: getTrimmedValue(json.city) + ' ' + getTrimmedValue(json.city_district),
+          state: getTrimmedValue(json.state) + ' ' + getTrimmedValue(json.state_district),
+          zip: getTrimmedValue(json.postalCode),
+          iso: getTrimmedValue(json.country)
+        };
         // TODO: Map API results to your predefined constants
         // TODO: Take result and parse it with respect to specified country
 
@@ -141,6 +155,9 @@ AddressParser.prototype.parseRawAddressAPI = function(address, iso, callback) {
     });
 }
 
+function getTrimmedValue(value) {
+  return (value || '').trim();
+}
 
 /**
  *  Make a request to the third party client
@@ -312,7 +329,7 @@ function populateISOMap() {
         [ postalCode, city ],
         [ optionalPart(country) ]
     ]);
-    
+
     addISO("HU", "Hungary", [
         [ honorific, lastName, firstName ],
         [ city ],
