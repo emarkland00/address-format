@@ -1,7 +1,8 @@
 const parseAddress = require("parse-address");
 const format = require("string-template");
 const fs = require('fs');
-const http = require('http');
+const https = require('https');
+const querystring = require('querystring');
 
 function AddressParser() {
     populateISOMap();
@@ -78,7 +79,7 @@ AddressParser.prototype.getFormat = function(iso) {
 * @param iso {string} - The country to parse the address as
 * @returns {json} - The parsed address format
 **/
-AddressParser.prototype.parseRawAddress = function(address, iso) {
+AddressParser.prototype.parseRawAddressOld = function(address, iso) {
     if (!this.isISOSupported(iso)) return null;
 
     //TODO: Add more extensive support and relations from US address address to other country address formats
@@ -100,59 +101,62 @@ AddressParser.prototype.parseRawAddress = function(address, iso) {
     return parseTemplate(this.getFormat(iso), result);
 }
 
-let LIBPOSTAL_MAPPING = {
-  "house_number": address1,
-  "house": address1,
-  "road": address1,
-  "suburb": city,
-  "city_district": city,
-  "city": city,
-  "state_district": state,
-  "postalCode": postalCode,
-  "country": country
-}
-
-// address1 => <house_number> <road> <house> <[address]
-// city => <city> <city_district>
-// state => <state> <state_district>
-// zip => <postalCode>
-// iso => country (as ISO?)
-
 let API_CREDENTIALS = null;
 function loadAPICredentials(callback) {
     if (API_CREDENTIALS) return true;
-    // TODO: Test that this actually works
+
     try {
-        var contents = fs.readFileSync('../credentials.json', 'r');
-        API_CREDENTIALS = JSON.parse(contents);
-        return true;
+      var credFile = process.env.CREDS || '../credentials.json';
+      var contents = fs.readFileSync(credFile);
+      API_CREDENTIALS = JSON.parse(contents);
+      return true;
     } catch (e) {
-        console.log("Ran into problem reading file " + e)
+      console.log("Ran into problem reading file " + e)
     }
 
     return false;
 }
 
-AddressParser.prototype.parseRawAddressAPI = function(address, iso, callback) {
-    if (!loadAPICredentials()) return;
+AddressParser.prototype.parseRawAddress = function(address, iso, callback) {
+  var addr = _parseAddress(address);
+  let result = {};
+  result[templateKeyAsCurlyBrace(address1)] = addr.address1;
+  result[templateKeyAsCurlyBrace(city)] = addr.city;
+  result[templateKeyAsCurlyBrace(postalCode)] = addr.zip;
+  result[templateKeyAsCurlyBrace(state)] = addr.state;
+  return parseTemplate(this.getFormat(iso), result);
+}
 
-    let path = "/parse?address=" + address;
-    processRequest(API_CREDENTIALS.base_url, path, function (data) {
-        var json = JSON.parse(data);
+async function _parseAddress(address) {
+  if (!loadAPICredentials()) return;
 
-        // TODO: Test this
-        let result = {
-          address_1: getTrimmedValue(json.house_number) ' ' +  getTrimmedValue(json.road) + getTrimmedValue(json.house) + getTrimmedValue(json.address),
-          city: getTrimmedValue(json.city) + ' ' + getTrimmedValue(json.city_district),
-          state: getTrimmedValue(json.state) + ' ' + getTrimmedValue(json.state_district),
-          zip: getTrimmedValue(json.postalCode),
-          iso: getTrimmedValue(json.country)
-        };
-        // TODO: Map API results to your predefined constants
-        // TODO: Take result and parse it with respect to specified country
+  let path = "/parse?address=" + querystring.escape(address) + "&api_key=" + API_CREDENTIALS.api_key;
+  return await processRequest(API_CREDENTIALS.base_url, path, function (data) {
+      console.log('Got data: ' + data);
+      var jarray = JSON.parse(data);
 
-        callback(json);
-    });
+
+      //TODO: Need to loop through each element and build up json
+      var json = {};
+      for (var i = 0; i < jarray.length; i++) {
+        var label = jarray[i].label;
+        var value = jarray[i].value;
+        json[label] = value;
+      }
+      console.log(json);
+
+      let result = {
+        address1: getTrimmedValue(json.house_number) + ' ' +  getTrimmedValue(json.road) + getTrimmedValue(json.house) + getTrimmedValue(json.address),
+        city: getTrimmedValue(json.city) + ' ' + getTrimmedValue(json.city_district),
+        state: getTrimmedValue(json.state) + ' ' + getTrimmedValue(json.state_district),
+        zip: getTrimmedValue(json.postalCode),
+        iso: getTrimmedValue(json.country)
+      };
+
+      console.log(result);
+
+      return result;
+  });
 }
 
 function getTrimmedValue(value) {
@@ -167,14 +171,11 @@ function getTrimmedValue(value) {
 function processRequest(baseURL, path, responseCallback) {
     var opts = {
         hostname: baseURL,
-        port: 80,
-        path: path,
-        headers: {
-            'Content-type': 'application/json'
-        }
+        port: 443,
+        path: path
     };
 
-    var req = http.request(opts, (res) => {
+    var req = https.request(opts, (res) => {
         res.setEncoding('utf-8');
         res.on('data', responseCallback);
     });
