@@ -1,174 +1,55 @@
-const parseAddress = require("parse-address");
 const format = require("string-template");
-const fs = require('fs');
-const http = require('http');
+const isoMap = require("./isoMap");
+import * as constants from '.constants';
+import parseAddressParser from '.parseAddressParser';
 
-function AddressParser() {
-    populateISOMap();
-}
-
-// address parts
-const title = "<title>";
-const honorific = "<honorific>";
-const firstName = "<first_name>";
-const middleName = "<middle_name>";
-const lastName = "<last_name>";
-const secondLastName = "<second_last_name>";
-const companyName = "<company_name>";
-const streetNumber = "<street_number>";
-const streetName = "<street_name>";
-const address1 = "<address1>";
-const address2 = "<address2>";
-const apartmentNumber = "<apartment_number>";
-const city = "<city>";
-const state = "<state>";
-const postalCode = "<postal_code>";
-const country = "<country>";
-const countryCode = "<country_code>";
-const countryAbbreviation = "<country_abbreviation>";
-const province = "<province>";
-const prefecture = "<prefecture>";
-const jobTitle = "<job_title>";
-const region = "<region>";
-const blankLine = "<blank_line>";
-
-const regexLessThan = /\[?</g;
-const regexGreaterThan = />\]?/g;
-
-/**
-* Mark the address part as optional
-* @param addressPart {string} - The address to mark
-* @returns {string} The optional address part
-**/
-function optionalPart(addressPart) {
-    return "[" + addressPart + "]";
-}
-
-/**
-* Replace template key prefix/postfix with curly braces
-* @param val {string} - The template key to format
-* @returns {string} - The updated template key
-**/
-function templateKeyAsCurlyBrace(val) {
-    if (!val) return val;
-    return val.replace(regexLessThan, "").replace(regexGreaterThan, "");
-}
+function AddressParser() { /*nothing*/ }
 
 /**
 * Get the corresponding home address format
-* @param iso {string} - The country ISO code
-* @returns {json} - The address format for the specified country
+* @param {string} iso - The constants.COUNTRY ISO code
+* @returns {json} - The address format for the specified constants.COUNTRY
 *
 **/
 AddressParser.prototype.getFormat = function(iso) {
     let addressFormat = {};
-    if (!iso || !this.isISOSupported(iso)) return addressFormat;
+    if (!iso || !isoMap.isISOSupported(iso)) return addressFormat;
 
     // render the selected address format as json
-    let addressMatrix = ISO_MAP[iso].format;
+    let addressMatrix = isoMap.getISOFormat(iso).format;
     for (let i = 0; i < addressMatrix.length; i++) {
-        addressFormat["line_" + (i+1)] = addressMatrix[i].join(" ");
+        addressFormat[`line_${i+1}`] = addressMatrix[i].map(part => `<${part}>`).join(" ");
     }
     return addressFormat;
 };
 
 /**
-* Parse the address as the specified country
-* @param address {string} - The raw address string-template
-* @param iso {string} - The country to parse the address as
+* Parse the address as the specified constants.COUNTRY
+* @param {string} address - The raw address string-template
+* @param {string} iso - The constants.COUNTRY to parse the address as
 * @returns {json} - The parsed address format
 **/
 AddressParser.prototype.parseRawAddress = function(address, iso) {
-    if (!this.isISOSupported(iso)) return null;
+    if (!isoMap.isISOSupported(iso)) return null;
 
-    //TODO: Add more extensive support and relations from US address address to other country address formats
-    let p = parseAddress.parseAddress(address);
-    if (!p) return null;
+    // this method should be a generic address parser that parses
+    // an address to a intermediary format
+    let p = parseAddressParser(address);
 
-    let line1 = [ p.number, p.prefix, p.street, p.type ];
-    if (p.sec_unit_type && p.sec_unit_num) { // check for apartment stuff
-        line1[line1.length-1] += ",";
-        line1.push(p.sec_unit_type);
-        line1.push(p.sec_unit_num);
-    }
-
-    let result = {};
-    result[templateKeyAsCurlyBrace(address1)] = line1.join(" ").replace(/\s{2,}/g, " ");
-    result[templateKeyAsCurlyBrace(city)] = p.city + (p.state ? "," : "");
-    result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
-    result[templateKeyAsCurlyBrace(state)] = p.state;
-    return parseTemplate(this.getFormat(iso), result);
+    return parseTemplate(isoMap.getISOFormat(iso), result);
 };
-
-let API_CREDENTIALS = null;
-function loadAPICredentials(callback) {
-    if (API_CREDENTIALS) return true;
-    // TODO: Test that this actually works
-    try {
-        var contents = fs.readFileSync('../credentials.json', 'r');
-        API_CREDENTIALS = JSON.parse(contents);
-        return true;
-    } catch (e) {
-        console.log("Ran into problem reading file " + e)
-    }
-
-    return false;
-}
-
-AddressParser.prototype.parseRawAddressAPI = function(address, iso, callback) {
-    if (!loadAPICredentials()) return;
-
-    let path = "/parse?address=" + address;
-    processRequest(API_CREDENTIALS.base_url, path, function (data) {
-        var json = JSON.parse(data);
-
-        // TODO: Map API results to your predefined constants
-        // TODO: Take result and parse it with respect to specified country
-
-        callback(json);
-    });
-}
-
-
-/**
- *  Make a request to the third party client
- *  @param {string} path - The API path we wish to access
- *  @param {function} responseCallback - The function to run for a successfully request
- */
-function processRequest(baseURL, path, responseCallback) {
-    var opts = {
-        hostname: baseURL,
-        port: 80,
-        path: path,
-        headers: {
-            'Content-type': 'application/json'
-        }
-    };
-
-    var req = http.request(opts, (res) => {
-        res.setEncoding('utf-8');
-        res.on('data', responseCallback);
-    });
-
-    req.on('error', e => {
-        console.log('Error occured with API request: ' + e.message);
-    });
-
-    req.end();
-}
-
 
 /**
 * Parse the template using specified values
-* @param template {json} - The address format template
-* @param values {json} - The values to places into the template
+* @param {json} template - The address format template
+* @param {json} values - The values to places into the template
 * @returns {json} - The parsed template
 **/
 function parseTemplate(template, values) {
     let result = {};
     let i = 1;
     for (let line in template) {
-        let formatString =  template[line].replace(regexLessThan, "{").replace(regexGreaterThan, "}");
+        let formatString =  template[line].replace(constants.REGEX_LESS_THAN, "{").replace(constants.REGEX_GREATER_THAN, "}");
         let parsed = format(formatString, values).trim();
         if (!parsed) continue;
 
@@ -178,260 +59,23 @@ function parseTemplate(template, values) {
     return result;
 }
 
-let ISO_MAP = null;
-
 /**
-* Populates the ISO map
-*/
-function populateISOMap() {
-    if (ISO_MAP) return;
-
-    ISO_MAP = {};
-    function addISO(code, name, addressFormatOrRelatedISO) {
-        let format = addressFormatOrRelatedISO;
-        if (typeof addressFormatOrRelatedISO === "string") {
-            let relatedCountry = ISO_MAP[addressFormatOrRelatedISO];
-            if (relatedCountry) {
-                format = relatedCountry.format;
-            }
-        } else if (!Array.isArray(addressFormatOrRelatedISO)){
-            format = null;
-        }
-
-        if (!format) return;
-        ISO_MAP[code] = { code: code, name: name, format: format };
-    }
-
-    addISO("AU", "Australia", [
-        [ honorific, firstName, middleName, lastName ],
-        [ address1 ],
-        [ optionalPart(address2) ],
-        [ city, state, postalCode ],
-        [ optionalPart(country) ],
-    ]);
-    addISO("US", "United States", "AU");
-
-    addISO("BR", "Brazil", [
-        [ optionalPart(companyName) ],
-        [ honorific, firstName, middleName, lastName ],
-        [ address1 ],
-        [ postalCode, city, state ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("BG", "Bulgaria", [
-        [ optionalPart(country) ],
-        [ state ],
-        [ postalCode, city ],
-        [ address1 ],
-        [ address2 ],
-        [ optionalPart(companyName) ],
-        [ honorific, firstName, middleName, lastName ]
-    ]);
-
-    addISO("CA", "Canada", [
-        [ honorific, firstName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ city, province, postalCode ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("CN", "China", [
-        [ optionalPart(country) ],
-        [ province, city ],
-        [ address1 ],
-        [ lastName, firstName, honorific ]
-    ]);
-
-    addISO("HR", "Croatia", [
-        [ honorific, firstName, middleName, lastName ],
-        [ streetNumber, streetNumber ],
-        [ apartmentNumber ],
-        [ postalCode, city ],
-        [ state ],
-        [ optionalPart(countryCode), postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
-    addISO("CZ", "Czech Republic", "HR");
-    addISO("CS", "Serbia", "HR");
-    addISO("SI", "Slovenia", "HR");
-
-    addISO("DK", "Denmark", [
-        [ optionalPart(honorific + " " + title), firstName, optionalPart(middleName), lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ optionalPart(countryCode) ],
-    ]);
-
-    addISO("FI", "Finland", [
-        [ optionalPart(title), firstName, optionalPart(middleName), lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ],
-    ]);
-
-    addISO("FR", "France", [
-        [ honorific, firstName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("DE", "Germany", [
-        [ optionalPart(companyName) ],
-        [ honorific, optionalPart(title), firstName, lastName ],
-        [ address1 ],
-        [ address2 ],
-        [ blankLine ],
-        [ optionalPart(country), postalCode, city ]
-    ]);
-
-    addISO("GR", "Greece", [
-        [ optionalPart(title), firstName, optionalPart(middleName), lastName ],
-        [ companyName ],
-        [ address1 ],
-        [ address2 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
-    addISO("HU", "Hungary", [
-        [ honorific, lastName, firstName ],
-        [ city ],
-        [ address1 ],
-        [ postalCode ],
-        [ state ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("IT", "Italy", [
-        [ title, firstName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ blankLine ],
-        [ optionalPart(countryAbbreviation), postalCode, city, province ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("JP", "Japan", [
-        [ optionalPart(country) ],
-        [ postalCode, prefecture, city ],
-        [ address1 ],
-        [ companyName ],
-        [ lastName, firstName, honorific ]
-    ]);
-
-    addISO("KR", "Korea", [
-        [ optionalPart(country) ],
-        [ postalCode ],
-        [ province, city, address1 ], // province = do, city = si, address1 = <dong> <gu> <Address#>
-        [ companyName ],
-        [ lastName, firstName, honorific ]
-    ]);
-
-    addISO("MY", "Malaysia", [
-        [ honorific, firstName, middleName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ postalCode, city ],
-        [ state, optionalPart(country) ]
-    ]);
-
-    addISO("NL", "Netherlands", [
-        [ title, firstName, middleName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ postalCode, city],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("NO", "Norway", [
-        [ optionalPart(jobTitle), firstName, lastName ],
-        [ address1 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("PL", "Poland", [
-        [ optionalPart(country) ],
-        [ postalCode ],
-        [ optionalPart(state), optionalPart(region), city ],
-        [ address1 ],
-        [ address2 ],
-        [ optionalPart(companyName) ],
-        [ lastName ],
-        [ firstName, middleName ]
-    ]);
-    addISO("RU", "Russia", "PL");
-
-    addISO("PT", "Portugal", [
-        [ honorific, firstName, middleName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ city ],
-        [ postalCode ],
-        [ optionalPart(countryCode) ]
-    ]);
-
-    addISO("RO", "Romania", [
-        [ honorific, firstName, middleName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ postalCode, city ],
-        [ state ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("ES", "Spain", [
-        [ honorific, firstName, middleName, lastName ],
-        [ secondLastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("SE", "Sweden", [
-        [ optionalPart(jobTitle), firstName, lastName ],
-        [ address1 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("CH", "Switzerland", [
-        [ honorific, firstName, lastName ],
-        [ address1 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
-
-    addISO("TR", "Turkey", [
-        [ honorific, firstName, middleName, lastName ],
-        [ optionalPart(companyName) ],
-        [ address1 ],
-        [ address2 ],
-        [ postalCode, city ],
-        [ optionalPart(country) ]
-    ]);
+* Mark the address part as optional
+* @param {string} addressPart - The address to mark
+* @returns {string} The optional address part
+**/
+function optionalPart(addressPart) {
+    return "[" + addressPart + "]";
 }
 
 /**
-* Checks whether if ISO code is supported
-*
-* List of supported address formats https://msdn.microsoft.com/en-us/library/cc195167.aspx
-* May add more from http://www.bitboost.com/ref/international-address-formats.html#Formats
-*/
-AddressParser.prototype.isISOSupported = function(iso) {
-    return !!ISO_MAP[iso];
-};
+* Replace template key prefix/postfix with curly braces
+* @param {string} val - The template key to format
+* @returns {string} - The updated template key
+**/
+function templateKeyAsCurlyBrace(val) {
+    if (!val) return val;
+    return val.replace(constants.REGEX_LESS_THAN, "").replace(constants.REGEX_GREATER_THAN, "");
+}
 
 exports.AddressParser = AddressParser;
