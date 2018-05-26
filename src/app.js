@@ -21,6 +21,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// make default content type json when using api
+app.use(function (req, res, next) {
+  console.log("REQUEST URL: " + req.url);
+  if (req.url.startsWith('/api')) {
+    res.set('Content-Type', 'application/json');
+  }
+  next();
+});
+
 app.use('/api', api);
 
 // catch 404 and forward to error handler

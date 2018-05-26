@@ -8,7 +8,14 @@ services:
             - "3000:3000"
         networks:
             - api_network
-
+        depends_on:
+            - postal_rest
+    postal_rest:
+        build: ./libpostal
+        networks:
+            - api_network
+        ports:
+            - "8080:8080"
 networks:
     api_network:
         driver: bridge
