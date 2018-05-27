@@ -69,7 +69,6 @@ router.get("/format", getAddressFormat);
 *       https://addressformat.errolmarkland.com/api/parse?address=123 Main Street, New York, NY 10001&iso=JP
 **/
 function parseAddress(req, res) {
-    console.log("Starting method");
     var address = decodeURIComponent(req.query.address);
     if (!address) {
         res.status(400).json({
