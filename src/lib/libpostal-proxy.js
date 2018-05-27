@@ -34,12 +34,10 @@ LibPostalProxy.prototype.parse = function(address, callbackFn) {
         var result = '';
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
-            console.log(`BODY: ${chunk}`);
             result += chunk;
         });
         res.on('end', () => {
             var opts = parseJsonToAddressFormatOpts(result);
-            console.log(opts);
             callbackFn(opts);
         });
     });
