@@ -70,34 +70,6 @@ AddressFormatParser.prototype.getTemplate = function(iso) {
 };
 
 /**
-* Parse the address as the specified country
-* @param address {string} - The raw address string-template
-* @param iso {string} - The country to parse the address as
-* @returns {json} - The parsed address format
-**/
-AddressFormatParser.prototype.parseRawAddress = function(address, iso) {
-    if (!this.isISOSupported(iso)) return null;
-
-    //TODO: Add more extensive support and relations from US address address to other country address formats
-    let p = parseAddress.parseAddress(address);
-    if (!p) return null;
-
-    let line1 = [ p.number, p.prefix, p.street, p.type ];
-    if (p.sec_unit_type && p.sec_unit_num) { // check for apartment stuff
-        line1[line1.length-1] += ",";
-        line1.push(p.sec_unit_type);
-        line1.push(p.sec_unit_num);
-    }
-
-    let result = {};
-    result[templateKeyAsCurlyBrace(address1)] = line1.join(" ").replace(/\s{2,}/g, " ");
-    result[templateKeyAsCurlyBrace(city)] = p.city + (p.state ? "," : "");
-    result[templateKeyAsCurlyBrace(postalCode)] = p.zip;
-    result[templateKeyAsCurlyBrace(state)] = p.state;
-    return parseTemplate(this.getTemplate(iso), result);
-};
-
-/**
  * Parse address, matching the specified country
  * @param {addressFormatOpts} addressFormatOpts - The address format objects
  * @param {*} iso - The country code to show the address as

@@ -1,5 +1,5 @@
 const http = require('http');
-const addressFormatOpts = require('../lib/addressFormatObject');
+const addressFormatOpts = require('../lib/address-format-object');
 
 function LibPostalProxy(json) {
     this.host = 'postal_rest';
