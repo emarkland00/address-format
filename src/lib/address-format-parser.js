@@ -7,27 +7,27 @@ function AddressFormatParser() {
 // address parts
 const title = "<title>";
 const honorific = "<honorific>";
-const firstName = "<first_name>";
-const middleName = "<middle_name>";
-const lastName = "<last_name>";
-const secondLastName = "<second_last_name>";
-const companyName = "<company_name>";
-const streetNumber = "<street_number>";
-const streetName = "<street_name>";
+const firstName = "<firstName>";
+const middleName = "<middleName>";
+const lastName = "<lastName>";
+const secondLastName = "<secondLastName>";
+const companyName = "<companyName>";
+const streetNumber = "<streetNumber>";
+const streetName = "<streetName>";
 const address1 = "<address1>";
 const address2 = "<address2>";
-const apartmentNumber = "<apartment_number>";
+const apartmentNumber = "<apartmentNumber>";
 const city = "<city>";
 const state = "<state>";
-const postalCode = "<postal_code>";
+const postalCode = "<postalCode>";
 const country = "<country>";
-const countryCode = "<country_code>";
-const countryAbbreviation = "<country_abbreviation>";
+const countryCode = "<countryCode>";
+const countryAbbreviation = "<countryAbbreviation>";
 const province = "<province>";
 const prefecture = "<prefecture>";
-const jobTitle = "<job_title>";
+const jobTitle = "<jobTitle>";
 const region = "<region>";
-const blankLine = "<blank_line>";
+const blankLine = "<blankLine>";
 
 const regexLessThan = /\[?</g;
 const regexGreaterThan = />\]?/g;
@@ -104,7 +104,13 @@ AddressFormatParser.prototype.parseRawAddress = function(address, iso) {
  */
 AddressFormatParser.prototype.parseAddress = function(addressFormatOpts, iso) {
     if (!this.isISOSupported(iso)) return null;
-    return parseTemplate(this.getTemplate(iso), addressFormatOpts);   
+    var opts = {};
+    for (var key in addressFormatOpts) {
+        var templateKey = templateKeyAsCurlyBrace(key);
+        var val = addressFormatOpts[key];
+        opts[templateKey] = val;
+    }
+    return parseTemplate(this.getTemplate(iso), opts);   
 }
 
 /**
