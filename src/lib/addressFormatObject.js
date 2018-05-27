@@ -22,6 +22,7 @@ function AddressFormatOptions(opts) {
     this.jobTitle = opts.jobTitle || ''
     this.region = opts.region || ''
     this.reference = {}
+    return this;
 }
 
 exports.AddressFormatOptions = AddressFormatOptions;
