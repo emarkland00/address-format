@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
-const addressParser = require('../lib/address.js');
-const parser = new addressParser.AddressParser();
+const libPostalProxy = require('../lib/libpostal-proxy');
+const libPostalParser = new libPostalProxy.LibPostalProxy();
+const addressFormatParser = require('../lib/address-format-parser');
+const addressOptParser = new addressFormatParser.AddressFormatParser();
 
 function capitalizeISOCode(iso) {
     if (!iso || typeof iso !== 'string' || iso.length !== 2) return null;
@@ -36,7 +38,7 @@ function getAddressFormat(req, res) {
 	}
 
     var code = iso.toUpperCase();
-    if (!parser.isISOSupported(code)) {
+    if (!addressOptParser.isISOSupported(code)) {
         res.status(400).json({
             error: "ISO Code " + iso + " is either unknown or unsupported at this time"
         });
@@ -58,11 +60,11 @@ router.get("/format", getAddressFormat);
 * @apiName Parse
 * @apiVersion 0.1.0
 * @apiGroup API
-* @apiDescription Parse US-based address into specified country address format. In the future, support for additional address formats will be added
+* @apiDescription Parse address into specified country address format.
 * @apiParam {string} iso Country ISO code
-* @apiParam {string} address The US-based address to convert
+* @apiParam {string} address The address to convert
 * @apiSuccess {json} json The address restructured to match the specified format
-* @apiError BadRequest Invalid ISO or US-based address code entered
+* @apiError BadRequest Invalid ISO or address entered
 * @apiExample {https} Example URL:
 *       https://addressformat.errolmarkland.com/api/parse?address=123 Main Street, New York, NY 10001&iso=JP
 **/
@@ -70,14 +72,14 @@ function parseAddress(req, res) {
     var address = decodeURIComponent(req.query.address);
     if (!address) {
         res.status(400).json({
-            error: "Must provide US-based address to parse"
+            error: "Must provide address to parse"
         });
         res.end();
         return;
     }
 
     var iso = capitalizeISOCode(req.query.iso || "US");
-    if (!parser.isISOSupported(iso)) {
+    if (!addressOptParser.isISOSupported(iso)) {
         res.status(400).json({
             error: "ISO Code " + iso + " is either unknown or unsupported at this time"
         });
@@ -85,16 +87,17 @@ function parseAddress(req, res) {
         return;
     }
 
-    var parsed = parser.parseRawAddress(address, iso);
-    if (!parsed) {
-        res.status(400).json({
-            error: "Failed to parse address"
-        });
-        return;
-    }
-
-    res.send(parsed);
-    res.end();
+    libPostalParser.parse(address, function(parsed) {
+        if (!parsed) {
+            res.status(400).json({
+                error: "Failed to parse address"
+            });
+            return;
+        }
+        var result = addressOptParser.parseAddress(parsed, iso);
+        res.send(result);
+        res.end();
+    });
 }
 router.get("/parse", parseAddress);
 
