@@ -128,7 +128,7 @@ function parseAddress2(req, res) {
             });
             return;
         }
-        var result = addressOptParser.parseAddress(parsed);
+        var result = addressOptParser.parseAddress(parsed, iso);
         res.send(result);
         res.end();
     });
