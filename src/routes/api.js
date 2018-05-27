@@ -5,6 +5,8 @@ const addressParser = require('../lib/address.js');
 const parser = new addressParser.AddressParser();
 const libPostalProxy = require('../lib/libpostal-proxy');
 const libPostalParser = new libPostalProxy.LibPostalProxy();
+const addressFormatParser = require('../lib/address-format-parser');
+const addressOptParser = new addressFormatParser.AddressFormatParser();
 
 function capitalizeISOCode(iso) {
     if (!iso || typeof iso !== 'string' || iso.length !== 2) return null;
@@ -126,7 +128,8 @@ function parseAddress2(req, res) {
             });
             return;
         }
-        res.send(parsed);
+        var result = addressOptParser.parseAddress(parsed);
+        res.send(result);
         res.end();
     });
 }

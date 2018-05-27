@@ -98,6 +98,11 @@ AddressParser.prototype.parseRawAddress = function(address, iso) {
     return parseTemplate(this.getFormat(iso), result);
 };
 
+AddressParser.prototype.parseAddressFormatOpts = function(addressFormatOpts, iso) {
+    if (!this.isISOSupported(iso)) return null;
+    
+}
+
 /**
 * Parse the template using specified values
 * @param template {json} - The address format template

@@ -39,6 +39,7 @@ LibPostalProxy.prototype.parse = function(address, callbackFn) {
         });
         res.on('end', () => {
             var opts = parseJsonToAddressFormatOpts(result);
+            console.log(opts);
             callbackFn(opts);
         });
     });
@@ -75,7 +76,6 @@ function parseJsonToAddressFormatOpts(rawJson) {
             opts[key] = val;
         }
     }
-    console.log(opts);
     
     return addressFormatOpts.AddressFormatOptions(opts);
 }
