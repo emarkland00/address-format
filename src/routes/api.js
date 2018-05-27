@@ -60,11 +60,11 @@ router.get("/format", getAddressFormat);
 * @apiName Parse
 * @apiVersion 0.1.0
 * @apiGroup API
-* @apiDescription Parse US-based address into specified country address format. In the future, support for additional address formats will be added
+* @apiDescription Parse address into specified country address format.
 * @apiParam {string} iso Country ISO code
-* @apiParam {string} address The US-based address to convert
+* @apiParam {string} address The address to convert
 * @apiSuccess {json} json The address restructured to match the specified format
-* @apiError BadRequest Invalid ISO or US-based address code entered
+* @apiError BadRequest Invalid ISO or address entered
 * @apiExample {https} Example URL:
 *       https://addressformat.errolmarkland.com/api/parse?address=123 Main Street, New York, NY 10001&iso=JP
 **/
