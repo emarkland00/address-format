@@ -12,6 +12,7 @@ services:
             - postal_rest
     postal_rest:
         build: ./libpostal
+        restart: always
         networks:
             - api_network
         ports:
