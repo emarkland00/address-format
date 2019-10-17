@@ -1,4 +1,4 @@
-const http = require('http');
+import { http } from 'http';
 const addressFormatOpts = require('../lib/address-format-object');
 
 function LibPostalProxy(json) {
@@ -75,7 +75,7 @@ function parseJsonToAddressFormatOpts(rawJson) {
         }
     }
     
-    return addressFormatOpts.AddressFormatOptions(opts);
+    return addressFormatOpts.addressFormatOptions(opts);
 }
 
 /**

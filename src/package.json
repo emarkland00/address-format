@@ -13,25 +13,22 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/markmore/address-format-project#readme",
   "dependencies": {
-    "body-parser": "~1.16.0",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.6.0",
-    "express": "~4.14.1",
+    "body-parser": "~1.19.0",
+    "cookie-parser": "~1.4.4",
+    "debug": "~4.1.1",
+    "express": "~4.17.1",
     "morgan": ">=1.9.1",
-    "pug": "~2.0.0-beta10",
-    "serve-favicon": "~2.3.2",
-    "parse-address": "^0.0.6",
+    "pug": "~2.0.4",
+    "serve-favicon": "~2.5.0",
+    "parse-address": "^1.1.2",
     "string-template": "^1.0.0"
   },
   "devDependencies": {
-    "nodemon": "^1.11.0",
-    "mocha": "^3.2.0",
-    "should": "^11.2.1",
-    "apidoc": "^0.17.6",
-    "jshint": "^2.9.5"
-  },
-  "jshintConfig": {
-    "esversion": 6,
-    "node": true
+    "apidoc": "^0.17.7",
+    "eslint": "^6.5.1",
+    "eslint-config-google": "^0.14.0",
+    "mocha": "^6.2.1",
+    "nodemon": "^1.19.4",
+    "should": "^13.2.3"
   }
 }
