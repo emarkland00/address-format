@@ -1,33 +1,33 @@
-const format = require("string-template");
+const format = require('string-template');
 
 function AddressFormatParser() {
     populateISOMap();
 }
 
 // address parts
-const title = "<title>";
-const honorific = "<honorific>";
-const firstName = "<firstName>";
-const middleName = "<middleName>";
-const lastName = "<lastName>";
-const secondLastName = "<secondLastName>";
-const companyName = "<companyName>";
-const streetNumber = "<streetNumber>";
-const streetName = "<streetName>";
-const address1 = "<address1>";
-const address2 = "<address2>";
-const apartmentNumber = "<apartmentNumber>";
-const city = "<city>";
-const state = "<state>";
-const postalCode = "<postalCode>";
-const country = "<country>";
-const countryCode = "<countryCode>";
-const countryAbbreviation = "<countryAbbreviation>";
-const province = "<province>";
-const prefecture = "<prefecture>";
-const jobTitle = "<jobTitle>";
-const region = "<region>";
-const blankLine = "<blankLine>";
+const title = '<title>';
+const honorific = '<honorific>';
+const firstName = '<firstName>';
+const middleName = '<middleName>';
+const lastName = '<lastName>';
+const secondLastName = '<secondLastName>';
+const companyName = '<companyName>';
+const streetNumber = '<streetNumber>';
+const streetName = '<streetName>';
+const address1 = '<address1>';
+const address2 = '<address2>';
+const apartmentNumber = '<apartmentNumber>';
+const city = '<city>';
+const state = '<state>';
+const postalCode = '<postalCode>';
+const country = '<country>';
+const countryCode = '<countryCode>';
+const countryAbbreviation = '<countryAbbreviation>';
+const province = '<province>';
+const prefecture = '<prefecture>';
+const jobTitle = '<jobTitle>';
+const region = '<region>';
+const blankLine = '<blankLine>';
 
 const regexLessThan = /\[?</g;
 const regexGreaterThan = />\]?/g;
@@ -35,36 +35,36 @@ const regexGreaterThan = />\]?/g;
 /**
 * Mark the address part as optional
 * @param addressPart {string} - The address to mark
-* @returns {string} The optional address part
+* @return {string} The optional address part
 **/
 function optionalPart(addressPart) {
-    return "[" + addressPart + "]";
+    return '[' + addressPart + ']';
 }
 
 /**
 * Replace template key prefix/postfix with curly braces
-* @param val {string} - The template key to format
-* @returns {string} - The updated template key
+* @param {string} val - The template key to format
+* @return {string} - The updated template key
 **/
 function templateKeyAsCurlyBrace(val) {
     if (!val) return val;
-    return val.replace(regexLessThan, "").replace(regexGreaterThan, "");
+    return val.replace(regexLessThan, '').replace(regexGreaterThan, '');
 }
 
 /**
 * Get the corresponding home address format
 * @param iso {string} - The country ISO code
-* @returns {json} - The address format for the specified country
+* @return {json} - The address format for the specified country
 *
 **/
 AddressFormatParser.prototype.getTemplate = function(iso) {
-    let addressFormat = {};
+    const addressFormat = {};
     if (!iso || !this.isISOSupported(iso)) return addressFormat;
 
     // render the selected address format as json
-    let addressMatrix = ISO_MAP[iso].format;
+    const addressMatrix = ISO_MAP[iso].format;
     for (let i = 0; i < addressMatrix.length; i++) {
-        addressFormat["line_" + (i+1)] = addressMatrix[i].join(" ");
+        addressFormat['line_' + (i+1)] = addressMatrix[i].join(' ');
     }
     return addressFormat;
 };
@@ -76,30 +76,30 @@ AddressFormatParser.prototype.getTemplate = function(iso) {
  */
 AddressFormatParser.prototype.parseAddress = function(addressFormatOpts, iso) {
     if (!this.isISOSupported(iso)) return null;
-    var opts = {};
-    for (var key in addressFormatOpts) {
-        var templateKey = templateKeyAsCurlyBrace(key);
-        var val = addressFormatOpts[key];
+    let opts = {};
+    for (let key in addressFormatOpts) {
+        let templateKey = templateKeyAsCurlyBrace(key);
+        let val = addressFormatOpts[key];
         opts[templateKey] = val;
     }
-    return parseTemplate(this.getTemplate(iso), opts);   
-}
+    return parseTemplate(this.getTemplate(iso), opts);
+};
 
 /**
 * Parse the template using specified values
 * @param template {json} - The address format template
 * @param values {json} - The values to places into the template
-* @returns {json} - The parsed template
+* @return {json} - The parsed template
 **/
 function parseTemplate(template, values) {
-    let result = {};
+    const result = {};
     let i = 1;
-    for (let line in template) {
-        let formatString =  template[line].replace(regexLessThan, "{").replace(regexGreaterThan, "}");
-        let parsed = format(formatString, values).trim();
+    for (const line in template) {
+        const formatString = template[line].replace(regexLessThan, '{').replace(regexGreaterThan, '}');
+        const parsed = format(formatString, values).trim();
         if (!parsed) continue;
 
-        result["line_" + i] = parsed;
+        result['line_' + i] = parsed;
         i++;
     }
     return result;
@@ -114,14 +114,21 @@ function populateISOMap() {
     if (ISO_MAP) return;
 
     ISO_MAP = {};
+
+    /**
+     * Add an ISO to the mapping of ISO codes
+     * @param {string} code - The ISO code
+     * @param {string} name - The full name representation
+     * @param {string|object} addressFormatOrRelatedISO - The existing address format or corresponding ISO code
+     */
     function addISO(code, name, addressFormatOrRelatedISO) {
         let format = addressFormatOrRelatedISO;
-        if (typeof addressFormatOrRelatedISO === "string") {
-            let relatedCountry = ISO_MAP[addressFormatOrRelatedISO];
+        if (typeof addressFormatOrRelatedISO === 'string') {
+            const relatedCountry = ISO_MAP[addressFormatOrRelatedISO];
             if (relatedCountry) {
                 format = relatedCountry.format;
             }
-        } else if (!Array.isArray(addressFormatOrRelatedISO)){
+        } else if (!Array.isArray(addressFormatOrRelatedISO)) {
             format = null;
         }
 
@@ -129,16 +136,16 @@ function populateISOMap() {
         ISO_MAP[code] = { code: code, name: name, format: format };
     }
 
-    addISO("AU", "Australia", [
+    addISO('AU', 'Australia', [
         [ honorific, firstName, middleName, lastName ],
         [ address1 ],
         [ optionalPart(address2) ],
         [ city, state, postalCode ],
         [ optionalPart(country) ],
     ]);
-    addISO("US", "United States", "AU");
+    addISO('US', 'United States', 'AU');
 
-    addISO("BR", "Brazil", [
+    addISO('BR', 'Brazil', [
         [ optionalPart(companyName) ],
         [ honorific, firstName, middleName, lastName ],
         [ address1 ],
@@ -146,7 +153,7 @@ function populateISOMap() {
         [ optionalPart(country) ]
     ]);
 
-    addISO("BG", "Bulgaria", [
+    addISO('BG', 'Bulgaria', [
         [ optionalPart(country) ],
         [ state ],
         [ postalCode, city ],
@@ -156,7 +163,7 @@ function populateISOMap() {
         [ honorific, firstName, middleName, lastName ]
     ]);
 
-    addISO("CA", "Canada", [
+    addISO('CA', 'Canada', [
         [ honorific, firstName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
@@ -164,14 +171,14 @@ function populateISOMap() {
         [ optionalPart(country) ]
     ]);
 
-    addISO("CN", "China", [
+    addISO('CN', 'China', [
         [ optionalPart(country) ],
         [ province, city ],
         [ address1 ],
         [ lastName, firstName, honorific ]
     ]);
 
-    addISO("HR", "Croatia", [
+    addISO('HR', 'Croatia', [
         [ honorific, firstName, middleName, lastName ],
         [ streetNumber, streetNumber ],
         [ apartmentNumber ],
@@ -180,19 +187,19 @@ function populateISOMap() {
         [ optionalPart(countryCode), postalCode, city ],
         [ optionalPart(country) ]
     ]);
-    addISO("CZ", "Czech Republic", "HR");
-    addISO("CS", "Serbia", "HR");
-    addISO("SI", "Slovenia", "HR");
+    addISO('CZ', 'Czech Republic', 'HR');
+    addISO('CS', 'Serbia', 'HR');
+    addISO('SI', 'Slovenia', 'HR');
 
-    addISO("DK", "Denmark", [
-        [ optionalPart(honorific + " " + title), firstName, optionalPart(middleName), lastName ],
+    addISO('DK', 'Denmark', [
+        [ optionalPart(honorific + ' ' + title), firstName, optionalPart(middleName), lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
         [ address2 ],
         [ optionalPart(countryCode) ],
     ]);
 
-    addISO("FI", "Finland", [
+    addISO('FI', 'Finland', [
         [ optionalPart(title), firstName, optionalPart(middleName), lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
@@ -201,7 +208,7 @@ function populateISOMap() {
         [ optionalPart(country) ],
     ]);
 
-    addISO("FR", "France", [
+    addISO('FR', 'France', [
         [ honorific, firstName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
@@ -210,7 +217,7 @@ function populateISOMap() {
         [ optionalPart(country) ]
     ]);
 
-    addISO("DE", "Germany", [
+    addISO('DE', 'Germany', [
         [ optionalPart(companyName) ],
         [ honorific, optionalPart(title), firstName, lastName ],
         [ address1 ],
@@ -219,7 +226,7 @@ function populateISOMap() {
         [ optionalPart(country), postalCode, city ]
     ]);
 
-    addISO("GR", "Greece", [
+    addISO('GR', 'Greece', [
         [ optionalPart(title), firstName, optionalPart(middleName), lastName ],
         [ companyName ],
         [ address1 ],
@@ -227,7 +234,7 @@ function populateISOMap() {
         [ postalCode, city ],
         [ optionalPart(country) ]
     ]);
-    addISO("HU", "Hungary", [
+    addISO('HU', 'Hungary', [
         [ honorific, lastName, firstName ],
         [ city ],
         [ address1 ],
@@ -236,7 +243,7 @@ function populateISOMap() {
         [ optionalPart(country) ]
     ]);
 
-    addISO("IT", "Italy", [
+    addISO('IT', 'Italy', [
         [ title, firstName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
@@ -245,7 +252,7 @@ function populateISOMap() {
         [ optionalPart(country) ]
     ]);
 
-    addISO("JP", "Japan", [
+    addISO('JP', 'Japan', [
         [ optionalPart(country) ],
         [ postalCode, prefecture, city ],
         [ address1 ],
@@ -253,7 +260,7 @@ function populateISOMap() {
         [ lastName, firstName, honorific ]
     ]);
 
-    addISO("KR", "Korea", [
+    addISO('KR', 'Korea', [
         [ optionalPart(country) ],
         [ postalCode ],
         [ province, city, address1 ], // province = do, city = si, address1 = <dong> <gu> <Address#>
@@ -261,7 +268,7 @@ function populateISOMap() {
         [ lastName, firstName, honorific ]
     ]);
 
-    addISO("MY", "Malaysia", [
+    addISO('MY', 'Malaysia', [
         [ honorific, firstName, middleName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
@@ -270,23 +277,23 @@ function populateISOMap() {
         [ state, optionalPart(country) ]
     ]);
 
-    addISO("NL", "Netherlands", [
+    addISO('NL', 'Netherlands', [
         [ title, firstName, middleName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
         [ address2 ],
-        [ postalCode, city],
+        [ postalCode, city ],
         [ optionalPart(country) ]
     ]);
 
-    addISO("NO", "Norway", [
+    addISO('NO', 'Norway', [
         [ optionalPart(jobTitle), firstName, lastName ],
         [ address1 ],
         [ postalCode, city ],
         [ optionalPart(country) ]
     ]);
 
-    addISO("PL", "Poland", [
+    addISO('PL', 'Poland', [
         [ optionalPart(country) ],
         [ postalCode ],
         [ optionalPart(state), optionalPart(region), city ],
@@ -296,9 +303,9 @@ function populateISOMap() {
         [ lastName ],
         [ firstName, middleName ]
     ]);
-    addISO("RU", "Russia", "PL");
+    addISO('RU', 'Russia', 'PL');
 
-    addISO("PT", "Portugal", [
+    addISO('PT', 'Portugal', [
         [ honorific, firstName, middleName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
@@ -308,7 +315,7 @@ function populateISOMap() {
         [ optionalPart(countryCode) ]
     ]);
 
-    addISO("RO", "Romania", [
+    addISO('RO', 'Romania', [
         [ honorific, firstName, middleName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],
@@ -318,7 +325,7 @@ function populateISOMap() {
         [ optionalPart(country) ]
     ]);
 
-    addISO("ES", "Spain", [
+    addISO('ES', 'Spain', [
         [ honorific, firstName, middleName, lastName ],
         [ secondLastName ],
         [ optionalPart(companyName) ],
@@ -327,21 +334,21 @@ function populateISOMap() {
         [ optionalPart(country) ]
     ]);
 
-    addISO("SE", "Sweden", [
+    addISO('SE', 'Sweden', [
         [ optionalPart(jobTitle), firstName, lastName ],
         [ address1 ],
         [ postalCode, city ],
         [ optionalPart(country) ]
     ]);
 
-    addISO("CH", "Switzerland", [
+    addISO('CH', 'Switzerland', [
         [ honorific, firstName, lastName ],
         [ address1 ],
         [ postalCode, city ],
         [ optionalPart(country) ]
     ]);
 
-    addISO("TR", "Turkey", [
+    addISO('TR', 'Turkey', [
         [ honorific, firstName, middleName, lastName ],
         [ optionalPart(companyName) ],
         [ address1 ],

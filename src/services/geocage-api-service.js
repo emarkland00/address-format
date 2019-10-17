@@ -6,7 +6,9 @@ const apiLanguage = 'en';
 
 /**
  * An API client for the Geocage Address API
- * @param {string} apiKey - The API key for the Geocage API client 
+ * @param {string} apiKey - The API key for the Geocage API client
+ * @return {object} An object containing all possible methods for interacting
+ * with the Geocage API
  */
 export function geocageApiService({ apiKey }) {
     if (!apiKey) {
@@ -18,7 +20,7 @@ export function geocageApiService({ apiKey }) {
             if (!query) {
                 throw Error('Must have a valid query');
             }
-        
+
             const url = `${baseUrl}${apiPath}?q=${query}key=${apiKey}&language=${apiLanguage}`;
             return axios.get(url);
         }

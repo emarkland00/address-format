@@ -2,7 +2,8 @@
     "env": {
         "browser": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "mocha": true
     },
     "extends": [
         "google"
@@ -20,5 +21,8 @@
         "object-curly-spacing": ["error", "always"],
         "arrow-parens": "off",
         "indent": "off",
+        "array-bracket-spacing": ["error", "always"],
+        "comma-dangle": "off",
+        "max-len": "off"
     }
 }

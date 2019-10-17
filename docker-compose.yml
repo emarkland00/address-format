@@ -10,13 +10,6 @@ services:
             - api_network
         depends_on:
             - postal_rest
-    postal_rest:
-        build: ./libpostal
-        restart: always
-        networks:
-            - api_network
-        ports:
-            - "8080:8080"
 networks:
     api_network:
         driver: bridge
