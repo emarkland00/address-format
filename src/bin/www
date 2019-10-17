@@ -13,7 +13,7 @@ import { createServer } from 'http';
  */
 
 const port = normalizePort(process.env.PORT || '3000');
-set('port', port);
+app.set('port', port);
 
 /**
  * Create HTTP server.

@@ -1,8 +1,4 @@
-const format = require('string-template');
-
-function AddressFormatParser() {
-    populateISOMap();
-}
+import format from 'string-template';
 
 // address parts
 const title = '<title>';
@@ -13,7 +9,6 @@ const lastName = '<lastName>';
 const secondLastName = '<secondLastName>';
 const companyName = '<companyName>';
 const streetNumber = '<streetNumber>';
-const streetName = '<streetName>';
 const address1 = '<address1>';
 const address2 = '<address2>';
 const apartmentNumber = '<apartmentNumber>';
@@ -34,7 +29,7 @@ const regexGreaterThan = />\]?/g;
 
 /**
 * Mark the address part as optional
-* @param addressPart {string} - The address to mark
+* @param {string} addressPart - The address to mark
 * @return {string} The optional address part
 **/
 function optionalPart(addressPart) {
@@ -53,13 +48,12 @@ function templateKeyAsCurlyBrace(val) {
 
 /**
 * Get the corresponding home address format
-* @param iso {string} - The country ISO code
-* @return {json} - The address format for the specified country
-*
+* @param {string} iso - The country ISO code
+* @return {object} - The address format for the specified country
 **/
-AddressFormatParser.prototype.getTemplate = function(iso) {
+function getTemplate(iso) {
     const addressFormat = {};
-    if (!iso || !this.isISOSupported(iso)) return addressFormat;
+    if (!iso || !isISOSupported(iso)) return addressFormat;
 
     // render the selected address format as json
     const addressMatrix = ISO_MAP[iso].format;
@@ -71,38 +65,42 @@ AddressFormatParser.prototype.getTemplate = function(iso) {
 
 /**
  * Parse address, matching the specified country
- * @param {addressFormatOpts} addressFormatOpts - The address format objects
- * @param {*} iso - The country code to show the address as
+ * @param {object} addressFormatOpts - The address format objects
+ * @param {string} iso - The country code to show the address as
+ * @return {object} The object representation of the tempalte
  */
-AddressFormatParser.prototype.parseAddress = function(addressFormatOpts, iso) {
-    if (!this.isISOSupported(iso)) return null;
-    let opts = {};
-    for (let key in addressFormatOpts) {
-        let templateKey = templateKeyAsCurlyBrace(key);
-        let val = addressFormatOpts[key];
-        opts[templateKey] = val;
+function parseAddress(addressFormatOpts, iso) {
+    if (isISOSupported(iso)) {
+        return null;
     }
-    return parseTemplate(this.getTemplate(iso), opts);
+    const opts = addressFormatOpts.reduce((opts, key) => {
+        const templateKey = templateKeyAsCurlyBrace(key);
+        const val = addressFormatOpts[key];
+        opts[templateKey] = val;
+    }, {});
+
+    return parseTemplate(getTemplate(iso), opts);
 };
 
 /**
 * Parse the template using specified values
-* @param template {json} - The address format template
-* @param values {json} - The values to places into the template
-* @return {json} - The parsed template
+* @param {object} template - The address format template
+* @param {object} values - The values to places into the template
+* @return {object} - The parsed template
 **/
 function parseTemplate(template, values) {
-    const result = {};
-    let i = 1;
-    for (const line in template) {
-        const formatString = template[line].replace(regexLessThan, '{').replace(regexGreaterThan, '}');
-        const parsed = format(formatString, values).trim();
-        if (!parsed) continue;
+    const templateValues = template.values();
 
-        result['line_' + i] = parsed;
-        i++;
-    }
-    return result;
+    const enumeratedParsedValues = templateValues
+        .map(line => line.replace(regexLessThan, '{').replace(regexGreaterThan, '}'))
+        .map(formatString => format(formatString, values).trim())
+        .filter(parsed => !!parsed)
+        .map((parsed, i) => ({ parsed, i }));
+
+    return enumeratedParsedValues.reduce((result, item) => ({
+        ...result,
+        [`line_${item.i+1}`]: item.result
+    }), {});
 }
 
 let ISO_MAP = null;
@@ -360,12 +358,24 @@ function populateISOMap() {
 
 /**
 * Checks whether if ISO code is supported
-*
+* @param {string} iso - The ISO code to check
+* @return {boolean} True is the code is supported. False, if otherwise
 * List of supported address formats https://msdn.microsoft.com/en-us/library/cc195167.aspx
 * May add more from http://www.bitboost.com/ref/international-address-formats.html#Formats
 */
-AddressFormatParser.prototype.isISOSupported = function(iso) {
+function isISOSupported(iso) {
+    populateISOMap();
     return !!ISO_MAP[iso];
 };
 
-exports.AddressFormatParser = AddressFormatParser;
+/**
+ * Address format parser
+ * @return {object} The functions used for address format parsing
+ */
+export function addressFormatParser() {
+    populateISOMap();
+    return {
+        isISOSupported,
+        parseAddress
+    };
+};

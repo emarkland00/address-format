@@ -3,8 +3,8 @@
   "version": "1.0.1",
   "private": true,
   "scripts": {
-    "docs": "apidoc -f api.js -i routes/ -o public/",
-    "start": "node ./bin/www",
+    "docs": "apidoc -f src/api.js -i routes/ -o public/",
+    "start": "babel-node ./src/bin/www",
     "test": "mocha \"src/**/*.spec.js\" --require babel-polyfill --require babel-register"
   },
   "repository": {
@@ -37,7 +37,6 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.26.0",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
