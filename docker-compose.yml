@@ -8,8 +8,6 @@ services:
             - "3000:3000"
         networks:
             - api_network
-        depends_on:
-            - postal_rest
 networks:
     api_network:
         driver: bridge
