@@ -1,11 +1,10 @@
 /**
- * Configures the HTTP response to be handled as a JSON response
- * @return {function} A middleware function that transforms the HTTP
- * response into a JSON content type response
+ * Handles the response as a json response
+ * @param {*} req - The express request object
+ * @param {*} res - The express response object
+ * @param {*} next - The function to the next middleware
  */
-export function handleResponseAsJson() {
-    return (_, res, next) => {
-        res.set('Content-Type', 'application/json');
-        next();
-    };
+export function handleResponseAsJson(req, res, next) {
+    res.setHeader('Content-Type', 'application/json');
+    next();
 }

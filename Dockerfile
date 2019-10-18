@@ -1,5 +1,8 @@
 FROM node:12-alpine
 
+# Install some dev tools
+RUN npm install -g nodemon
+
 # Set up work directory
 RUN mkdir -p /usr/app/src
 WORKDIR /usr/app/

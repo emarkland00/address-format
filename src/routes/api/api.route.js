@@ -20,8 +20,8 @@ export default () => {
         const { apiKey, query } = req.query;
         geocageApiService({ apiKey })
             .forwardGeocode(query)
-            .then(handleResponse)
-            .catch(handleError);
+            .then(handleResponse(res, next))
+            .catch(handleError(res, next));
     }
 
     /**
@@ -41,9 +41,11 @@ export default () => {
      */
     function handleResponse(res, next) {
         return response => {
-            const normalized = {
-                ...response
-            };
+            const apiResponse = response.data;
+            // May get multiple results so settle for first one
+            const result = apiResponse.results[0];
+            console.log(result.components);
+            const normalized = normalizeGeocageAddress(result.components);
             res.send(normalized);
             next();
         };
@@ -57,13 +59,27 @@ export default () => {
      */
     function handleError(res, next) {
         return err => {
-            console.log('Problem occured trying to get data from API', err);
             res.status(500).json({
                 error: 500,
                 message: 'Unexpected problem occured trying to query API'
             });
             next(err);
         };
+    }
+
+    /**
+     * Takes the geocage address representation and normalizes it
+     * @param {object} addressComponents - The address components from the geocage api
+     * @return {object} A normalized representation of the address components
+     */
+    function normalizeGeocageAddress(addressComponents) {
+        const normalizedAddress = {
+            address: `${addressComponents.house_number || ''} ${addressComponents.road || ''}`.trim(),
+            city: addressComponents.city || addressComponents.suburb || addressComponents.county || addressComponents.town || '',
+            state: addressComponents.state_code || '',
+            countryCode: addressComponents['ISO_3166-1_alpha-2'] || '',
+        };
+        return normalizedAddress;
     }
 
     return {

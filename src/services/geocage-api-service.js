@@ -21,7 +21,7 @@ export function geocageApiService({ apiKey }) {
                 throw Error('Must have a valid query');
             }
 
-            const url = `${baseUrl}${apiPath}?q=${query}key=${apiKey}&language=${apiLanguage}`;
+            const url = `${baseUrl}${apiPath}?q=${query}&key=${apiKey}&language=${apiLanguage}`;
             return axios.get(url);
         }
     };

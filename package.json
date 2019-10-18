@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "docs": "apidoc -f src/api.js -i routes/ -o public/",
+    "dev": "nodemon --exec babel-node ./src/bin/www --watch ./src",
     "start": "babel-node ./src/bin/www",
     "test": "mocha \"src/**/*.spec.js\" --require babel-polyfill --require babel-register"
   },
