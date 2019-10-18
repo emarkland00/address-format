@@ -1,5 +1,5 @@
 import { geocageApiService } from '../../services/geocage-api-service';
-import { getAddressFormatTemplate } from '../../lib/address-format-parser';
+import { getAddressFormatTemplate, parseAddress } from '../../lib/address-format-parser';
 
 export default () => {
     /**
@@ -38,6 +38,12 @@ export default () => {
             return;
         }
 
+        /*
+        NEXT STEP
+        - take the address components from geocage api and normalize to address format components [expand on normalizeGeocageAddress() to the properties in the address-format-parser.js]
+        - take normalized address components and pass them into the parseAddress() method, along with an optional ISO
+        - attach the result to the response
+        */
         const { apiKey, query } = req.query;
         geocageApiService({ apiKey })
             .forwardGeocode(query)
@@ -67,6 +73,8 @@ export default () => {
             const result = apiResponse.results[0];
             console.log(result.components);
             const normalized = normalizeGeocageAddress(result.components);
+
+            //TODO: call 'const parsed = parseAddress(normalized, iso)' and res.send(parsed);
             res.send(normalized);
             next();
         };
@@ -94,6 +102,7 @@ export default () => {
      * @return {object} A normalized representation of the address components
      */
     function normalizeGeocageAddress(addressComponents) {
+        // TODO: This should return the normalized address format components from the address-format-parser.js
         const normalizedAddress = {
             address: `${addressComponents.house_number || ''} ${addressComponents.road || ''}`.trim(),
             city: addressComponents.city || addressComponents.suburb || addressComponents.county || addressComponents.town || '',

@@ -68,14 +68,14 @@ export function getAddressFormatTemplate(iso) {
  * @param {string} iso - The country code to show the address as
  * @return {object} The object representation of the tempalte
  */
-function parseAddress(addressFormatOpts, iso) {
+export function parseAddress(addressFormatOpts, iso) {
     if (isISOSupported(iso)) {
         return null;
     }
-    const opts = addressFormatOpts.reduce((opts, key) => {
+    const opts = addressFormatOpts.reduce((overall, key) => {
         const templateKey = templateKeyAsCurlyBrace(key);
         const val = addressFormatOpts[key];
-        opts[templateKey] = val;
+        overall[templateKey] = val;
     }, {});
 
     return parseTemplate(getAddressFormatTemplate(iso), opts);
