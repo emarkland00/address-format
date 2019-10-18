@@ -47,20 +47,19 @@ function templateKeyAsCurlyBrace(val) {
 }
 
 /**
-* Get the corresponding home address format
+* Get the corresponding country address format
 * @param {string} iso - The country ISO code
 * @return {object} - The address format for the specified country
 **/
-function getTemplate(iso) {
-    const addressFormat = {};
-    if (!iso || !isISOSupported(iso)) return addressFormat;
+export function getAddressFormatTemplate(iso) {
+    populateISOMap();
+    const addressFormat = ISO_MAP[iso.toUpperCase()].format || {};
 
-    // render the selected address format as json
-    const addressMatrix = ISO_MAP[iso].format;
-    for (let i = 0; i < addressMatrix.length; i++) {
-        addressFormat['line_' + (i+1)] = addressMatrix[i].join(' ');
-    }
-    return addressFormat;
+    const templatizedAddress = addressFormat
+        .map((entry, index) => ({ entry, index }))
+        .reduce((overall, cur) => ({ ...overall, [`line_${cur.index+1}`]: cur.entry.join(' ') }), {});
+
+    return templatizedAddress;
 };
 
 /**
@@ -79,7 +78,7 @@ function parseAddress(addressFormatOpts, iso) {
         opts[templateKey] = val;
     }, {});
 
-    return parseTemplate(getTemplate(iso), opts);
+    return parseTemplate(getAddressFormatTemplate(iso), opts);
 };
 
 /**

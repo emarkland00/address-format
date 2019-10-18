@@ -1,6 +1,27 @@
 import { geocageApiService } from '../../services/geocage-api-service';
+import { getAddressFormatTemplate } from '../../lib/address-format-parser';
 
 export default () => {
+    /**
+     * Gets the address format for the specified iso code
+     * @param {*} req - The express request object
+     * @param {*} res - The express response object
+     * @param {*} next - The function to the next express middleware
+     */
+    function getAddressFormat(req, res, next) {
+        const iso = req.query.iso;
+        if (!iso) {
+            res.status(400).json({
+                error: 400,
+                message: 'Please supply an ISO code'
+            });
+        } else {
+            const addressFormatTemplate = getAddressFormatTemplate(iso);
+            res.send(addressFormatTemplate);
+        }
+        next();
+    }
+
     /**
      * Parse an address into components
      * @param {*} req - The express request object
@@ -83,6 +104,7 @@ export default () => {
     }
 
     return {
+        getAddressFormat,
         parseAddress,
         requestIsValid
     };
