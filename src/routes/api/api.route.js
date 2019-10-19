@@ -53,15 +53,6 @@ export default () => {
     }
 
     /**
-     * Checks that the API request is valid
-     * @param {*} req - The express request object
-     * @return {boolean} - True if the request is valid. False, if otherwise
-     */
-    function requestIsValid(req) {
-        return !!req.query.query;
-    }
-
-    /**
      * Handles the response from the API client
      * @param {string} iso - The country code to parse the address as
      * @param {*} res - The express response object
@@ -118,7 +109,6 @@ export default () => {
 
     return {
         getAddressFormat,
-        parseAddress,
-        requestIsValid
+        parseAddress
     };
 };
