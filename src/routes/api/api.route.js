@@ -29,7 +29,14 @@ export default () => {
      * @param {*} next - The function to the next express middleware
      */
     function parseAddress(req, res, next) {
-        if (!requestIsValid(req)) {
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            res.status(500).json({
+                error: 500,
+                message: 'Server not configured for parsing address'
+            });
+        }
+        if (!req.query.query) {
             res.status(400).json({
                 error: 400,
                 message: 'Need API and query key to use'
@@ -38,7 +45,7 @@ export default () => {
             return;
         }
 
-        const { apiKey, query, iso='US' } = req.query;
+        const { query, iso='US' } = req.query;
         geocageApiService({ apiKey })
             .forwardGeocode(query)
             .then(handleResponse(iso, res, next))
@@ -51,7 +58,7 @@ export default () => {
      * @return {boolean} - True if the request is valid. False, if otherwise
      */
     function requestIsValid(req) {
-        return !!req.query.apiKey && !!req.query.query;
+        return !!req.query.query;
     }
 
     /**
