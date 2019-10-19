@@ -1,50 +1,29 @@
-import format from 'string-template';
+import stringTemplate from 'string-template';
 
 // address parts
-const title = '<title>';
-const honorific = '<honorific>';
-const firstName = '<firstName>';
-const middleName = '<middleName>';
-const lastName = '<lastName>';
-const secondLastName = '<secondLastName>';
-const companyName = '<companyName>';
-const streetNumber = '<streetNumber>';
-const address1 = '<address1>';
-const address2 = '<address2>';
-const apartmentNumber = '<apartmentNumber>';
-const city = '<city>';
-const state = '<state>';
-const postalCode = '<postalCode>';
-const country = '<country>';
-const countryCode = '<countryCode>';
-const countryAbbreviation = '<countryAbbreviation>';
-const province = '<province>';
-const prefecture = '<prefecture>';
-const jobTitle = '<jobTitle>';
-const region = '<region>';
-const blankLine = '<blankLine>';
-
-const regexLessThan = /\[?</g;
-const regexGreaterThan = />\]?/g;
-
-/**
-* Mark the address part as optional
-* @param {string} addressPart - The address to mark
-* @return {string} The optional address part
-**/
-function optionalPart(addressPart) {
-    return '[' + addressPart + ']';
-}
-
-/**
-* Replace template key prefix/postfix with curly braces
-* @param {string} val - The template key to format
-* @return {string} - The updated template key
-**/
-function templateKeyAsCurlyBrace(val) {
-    if (!val) return val;
-    return val.replace(regexLessThan, '').replace(regexGreaterThan, '');
-}
+const title = '{title}';
+const honorific = '{honorific}';
+const firstName = '{firstName}';
+const middleName = '{middleName}';
+const lastName = '{lastName}';
+const secondLastName = '{secondLastName}';
+const companyName = '{companyName}';
+const streetNumber = '{streetNumber}';
+const streetName = '{streetName}';
+const address1 = '{address1}';
+const address2 = '{address2}';
+const apartmentNumber = '{apartmentNumber}';
+const city = '{city}';
+const state = '{state}';
+const postalCode = '{postalCode}';
+const country = '{country}';
+const countryCode = '{countryCode}';
+const countryAbbreviation = '{countryAbbreviation}';
+const province = '{province}';
+const prefecture = '{prefecture}';
+const jobTitle = '{jobTitle}';
+const region = '{region}';
+const blankLine = '{blankLine}';
 
 /**
 * Get the corresponding country address format
@@ -52,12 +31,17 @@ function templateKeyAsCurlyBrace(val) {
 * @return {object} - The address format for the specified country
 **/
 export function getAddressFormatTemplate(iso) {
-    populateISOMap();
-    const addressFormat = ISO_MAP[iso.toUpperCase()].format || {};
+    if (!isIsoSupported(iso)) {
+        return [];
+    }
 
+    const addressFormat = ISO_MAP[iso.toUpperCase()].format;
     const templatizedAddress = addressFormat
         .map((entry, index) => ({ entry, index }))
-        .reduce((overall, cur) => ({ ...overall, [`line_${cur.index+1}`]: cur.entry.join(' ') }), {});
+        .reduce((overall, cur) => ({
+            ...overall,
+            [`line_${cur.index+1}`]: cur.entry.join(' ')
+        }), {});
 
     return templatizedAddress;
 };
@@ -68,37 +52,36 @@ export function getAddressFormatTemplate(iso) {
  * @param {string} iso - The country code to show the address as
  * @return {object} The object representation of the tempalte
  */
-export function parseAddress(addressFormatOpts, iso) {
-    if (isISOSupported(iso)) {
-        return null;
+export function parseAddressWithTemplate(addressFormatOpts, iso) {
+    if (!isIsoSupported(iso)) {
+        return '';
     }
-    const opts = addressFormatOpts.reduce((overall, key) => {
-        const templateKey = templateKeyAsCurlyBrace(key);
-        const val = addressFormatOpts[key];
-        overall[templateKey] = val;
-    }, {});
 
-    return parseTemplate(getAddressFormatTemplate(iso), opts);
+    const addressTemplate = getAddressFormatTemplate(iso);
+    return parseTemplate(addressTemplate, addressFormatOpts);
 };
 
 /**
 * Parse the template using specified values
-* @param {object} template - The address format template
-* @param {object} values - The values to places into the template
+* @param {object} templateObject - The address format template
+* @param {object} valuesObject - The values to places into the template
 * @return {object} - The parsed template
 **/
-function parseTemplate(template, values) {
-    const templateValues = template.values();
+function parseTemplate(templateObject, valuesObject) {
+    // list values from template object
+    const templateValues = Object.values(templateObject);
 
+    // Swap template values with actual non-empty values. Enumerate each line
     const enumeratedParsedValues = templateValues
-        .map(line => line.replace(regexLessThan, '{').replace(regexGreaterThan, '}'))
-        .map(formatString => format(formatString, values).trim())
+        .map(removeOptionalBraces)
+        .map(formatString => stringTemplate(formatString, valuesObject).trim())
         .filter(parsed => !!parsed)
         .map((parsed, i) => ({ parsed, i }));
 
+    // Return a json object containing each line of the address
     return enumeratedParsedValues.reduce((result, item) => ({
         ...result,
-        [`line_${item.i+1}`]: item.result
+        [`line_${item.i+1}`]: item.parsed
     }), {});
 }
 
@@ -107,7 +90,7 @@ let ISO_MAP = null;
 /**
 * Populates the ISO map
 */
-function populateISOMap() {
+function populateIsoMap() {
     if (ISO_MAP) return;
 
     ISO_MAP = {};
@@ -362,8 +345,8 @@ function populateISOMap() {
 * List of supported address formats https://msdn.microsoft.com/en-us/library/cc195167.aspx
 * May add more from http://www.bitboost.com/ref/international-address-formats.html#Formats
 */
-function isISOSupported(iso) {
-    populateISOMap();
+export function isIsoSupported(iso) {
+    populateIsoMap();
     return !!ISO_MAP[iso];
 };
 
@@ -372,9 +355,28 @@ function isISOSupported(iso) {
  * @return {object} The functions used for address format parsing
  */
 export function addressFormatParser() {
-    populateISOMap();
+    populateIsoMap();
     return {
-        isISOSupported,
-        parseAddress
+        isISOSupported: isIsoSupported,
+        parseAddress: parseAddressWithTemplate
     };
 };
+
+/**
+* Mark the address part as optional
+* @param {string} addressPart - The address to mark
+* @return {string} The optional address part
+**/
+function optionalPart(addressPart) {
+    return '[' + addressPart + ']';
+}
+
+/**
+ * Removes the optional braces from the entry
+ * @param {string} entry - The entry to remove braces from
+ * @return {string} The entry without optional braces
+ */
+function removeOptionalBraces(entry) {
+    return entry.replace(/\[/gi, '').replace(/\]/g, '');
+}
+

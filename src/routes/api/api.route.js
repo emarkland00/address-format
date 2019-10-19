@@ -1,5 +1,5 @@
 import { geocageApiService } from '../../services/geocage-api-service';
-import { getAddressFormatTemplate, parseAddress } from '../../lib/address-format-parser';
+import { getAddressFormatTemplate, parseAddressWithTemplate } from '../../lib/address-format-parser';
 
 export default () => {
     /**
@@ -32,22 +32,16 @@ export default () => {
         if (!requestIsValid(req)) {
             res.status(400).json({
                 error: 400,
-                message: 'Need API key to use'
+                message: 'Need API and query key to use'
             });
             next();
             return;
         }
 
-        /*
-        NEXT STEP
-        - take the address components from geocage api and normalize to address format components [expand on normalizeGeocageAddress() to the properties in the address-format-parser.js]
-        - take normalized address components and pass them into the parseAddress() method, along with an optional ISO
-        - attach the result to the response
-        */
-        const { apiKey, query } = req.query;
+        const { apiKey, query, iso='US' } = req.query;
         geocageApiService({ apiKey })
             .forwardGeocode(query)
-            .then(handleResponse(res, next))
+            .then(handleResponse(iso, res, next))
             .catch(handleError(res, next));
     }
 
@@ -62,20 +56,19 @@ export default () => {
 
     /**
      * Handles the response from the API client
+     * @param {string} iso - The country code to parse the address as
      * @param {*} res - The express response object
      * @param {*} next - The function to the next express middleware
      * @return {function} A function that takes a string and performs operations with it
      */
-    function handleResponse(res, next) {
+    function handleResponse(iso, res, next) {
         return response => {
             const apiResponse = response.data;
             // May get multiple results so settle for first one
             const result = apiResponse.results[0];
-            console.log(result.components);
             const normalized = normalizeGeocageAddress(result.components);
-
-            //TODO: call 'const parsed = parseAddress(normalized, iso)' and res.send(parsed);
-            res.send(normalized);
+            const parsed = parseAddressWithTemplate(normalized, iso);
+            res.send(parsed);
             next();
         };
     }
@@ -102,12 +95,16 @@ export default () => {
      * @return {object} A normalized representation of the address components
      */
     function normalizeGeocageAddress(addressComponents) {
-        // TODO: This should return the normalized address format components from the address-format-parser.js
         const normalizedAddress = {
-            address: `${addressComponents.house_number || ''} ${addressComponents.road || ''}`.trim(),
+            streetNumber: `${addressComponents.house_number || ''}`,
+            streetName: addressComponents.road || '',
+            address1: `${addressComponents.house_number || ''} ${addressComponents.road || ''}`.trim(),
             city: addressComponents.city || addressComponents.suburb || addressComponents.county || addressComponents.town || '',
             state: addressComponents.state_code || '',
+            postalCode: addressComponents.postalCode || '',
+            country: addressComponents.country || '',
             countryCode: addressComponents['ISO_3166-1_alpha-2'] || '',
+            countryAbbreviation: addressComponents['ISO_3166-1_alpha-3'],
         };
         return normalizedAddress;
     }
