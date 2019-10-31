@@ -1,6 +1,13 @@
-import chai from 'chai';
+// imports needed for jest
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
+import chai from 'chai';
 import apiRoutes from './api.route.js';
+import app from '../../app';
+import request from 'supertest';
+
+
 
 const assert = chai.assert;
 const api = apiRoutes();
@@ -14,11 +21,13 @@ const mockRequest = ({ query=null, iso=null } = {}) => ({
 
 describe('api/api.route', () => {
     describe('#getAddressFormat', () => {
-        it('throws error if iso code is not supplied', done => {
-            const requestWithoutIsoCode = mockRequest();
-            const response = null; // hook up sinon and get the spy going
-            const mockDone = _ => {};
-            assert.throws(api.getAddressFormat(requestWithoutIsoCode, response, mockDone));
+        it('throws error if iso code is not supplied', async done => {
+            const res = await request(app).get('/api/format');
+            expect(res.statusCode).toEqual(400);
+            expect(res.body).toEqual({
+                error: 400,
+                message: 'Please supply an ISO code'
+            });
             done();
         });
 

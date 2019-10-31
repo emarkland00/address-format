@@ -12,8 +12,8 @@ COPY package.json package.json
 RUN npm install
 ENV NODE_ENV=production
 
-# Copy babel settings
-COPY .babelrc .babelrc
+# Copy all files over
+COPY . /usr/app
 
 # Copy source
 RUN mkdir -p /usr/app/src/
