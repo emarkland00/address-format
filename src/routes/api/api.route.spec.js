@@ -8,9 +8,9 @@ import request from 'supertest';
 import apiRouter from '../api/index';
 import apiRoutes from './api.route';
 
-describe('api/api.route', () => {
-    const { constants } = apiRoutes(() => {});
+const { constants } = apiRoutes(() => {});
 
+describe('api/api.route', () => {
     describe('#getAddressFormat', () => {
         it('returns 400 if no iso code is passed in', async () => {
             const response = await request(app).get('/api/format');
@@ -38,8 +38,18 @@ describe('api/api.route', () => {
     });
 
     describe('#parseAddress', () => {
+        const createMockApiClient = (addressComponentsObject = {}) => async () => ({
+            data: {
+                results: [
+                    { components: addressComponentsObject }
+                ]
+            }
+        });
+
+        const createMockApiCredentialsFetcher = (apiKey = null) => () => ({ apiKey });
+
         it('throws an error if the env is not set up an API key', async () => {
-            const routerWithNoApiCredentialsConfigured = apiRouter(() => {});
+            const routerWithNoApiCredentialsConfigured = apiRouter(createMockApiCredentialsFetcher(null));
             const mockApp = express();
             mockApp.use('/api', routerWithNoApiCredentialsConfigured);
 
@@ -52,8 +62,7 @@ describe('api/api.route', () => {
         });
 
         it('throws an error if an empty query is passed in', async () => {
-            const mockFetchCreds = () => ({ apiKey: 'test_key' });
-            const routerWithApiCredentialsConfigured = apiRouter(mockFetchCreds);
+            const routerWithApiCredentialsConfigured = apiRouter(createMockApiCredentialsFetcher('test_key'));
             const mockApp = express();
             mockApp.use('/api', routerWithApiCredentialsConfigured);
 
@@ -66,16 +75,8 @@ describe('api/api.route', () => {
         });
 
         it('parse the address if a non empty query is passed in', async () => {
-            const mockApiClient = async () => ({
-                data: {
-                    results: [{
-                        components: {
-                            state_code: 'ZZ'
-                        }
-                    }]
-                }
-            });
-            const mockFetchCreds = () => ({ apiKey: 'test_key' });
+            const mockApiClient = createMockApiClient({ state_code: 'ZZ' });
+            const mockFetchCreds = createMockApiCredentialsFetcher('test_key');
 
             const routerWithApiCredentialsConfigured = apiRouter(mockFetchCreds, mockApiClient);
             const mockApp = express();
@@ -87,37 +88,22 @@ describe('api/api.route', () => {
         });
 
         it('parses the address if valid query and supported iso code is passed in', async () => {
-            const mockApiClient = async () => ({
-                data: {
-                    results: [{
-                        components: {
-                            state_code: 'ZZ'
-                        }
-                    }]
-                }
-            });
-            const mockFetchCreds = () => ({ apiKey: 'test_key' });
+            const mockApiClient = createMockApiClient({ state_code: 'ZZ' });
+            const mockFetchCreds = createMockApiCredentialsFetcher('test_key');
 
             const routerWithApiCredentialsConfigured = apiRouter(mockFetchCreds, mockApiClient);
             const mockApp = express();
             mockApp.use('/api', routerWithApiCredentialsConfigured);
 
-            const response = await request(mockApp).get('/api/parse?query=123&iso=US');
+            const urlWithValidIsoCode = '/api/parse?query=123&iso=US';
+            const response = await request(mockApp).get(urlWithValidIsoCode);
             expect(response.statusCode).toEqual(200);
             expect(response.body).toBeTruthy();
         });
 
         it('returns an empty address if valid query is passed in but invalid iso code is passed in', async () => {
-            const mockApiClient = async () => ({
-                data: {
-                    results: [{
-                        components: {
-                            state_code: 'ZZ'
-                        }
-                    }]
-                }
-            });
-            const mockFetchCreds = () => ({ apiKey: 'test_key' });
+            const mockApiClient = createMockApiClient({ state_code: 'ZZ' });
+            const mockFetchCreds = createMockApiCredentialsFetcher('test_key');
 
             const routerWithApiCredentialsConfigured = apiRouter(mockFetchCreds, mockApiClient);
             const mockApp = express();
