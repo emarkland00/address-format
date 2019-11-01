@@ -5,20 +5,15 @@ RUN npm install -g nodemon
 
 # Set up work directory
 RUN mkdir -p /usr/app/src
+COPY . /usr/app
 WORKDIR /usr/app/
 
 # Set up node environment
-COPY package.json package.json
-RUN npm install
 ENV NODE_ENV=production
 
-# Copy babel settings
-COPY .babelrc .babelrc
+EXPOSE 3000
 
-# Copy source
-RUN mkdir -p /usr/app/src/
-COPY src/ /usr/app/src/
+RUN npm install
 
 # Set up run command
 CMD ["npm", "start"]
-EXPOSE 3000
