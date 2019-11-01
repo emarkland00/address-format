@@ -1,6 +1,6 @@
 {
   "name": "address-format-project",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "docs": "apidoc -f src/api.js -i routes/ -o public/",
