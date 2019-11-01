@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 
 import apiRouter from './routes/api';
-import { isModuleSpecifier } from 'C:/Users/jun_e/AppData/Local/Microsoft/TypeScript/3.6/node_modules/@types/babel-types';
 
 const app = express();
 
