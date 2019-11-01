@@ -1,10 +1,11 @@
+/* eslint-disable valid-jsdoc */
 #!/usr/bin/env node
 
 /**
  * Module dependencies.
  */
 
-import app, { set } from '../app';
+import app from '../app';
 const debug = require('debug')('address-format-project:server');
 import { createServer } from 'http';
 import dotenv from 'dotenv';
@@ -54,7 +55,6 @@ function normalizePort(val) {
 /**
  * Event listener for HTTP server "error" event.
  */
-
 function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;

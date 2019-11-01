@@ -6,7 +6,7 @@
     "docs": "apidoc -f src/api.js -i routes/ -o public/",
     "dev": "nodemon --inspect --exec babel-node ./src/bin/www --watch ./src",
     "start": "babel-node ./src/bin/www",
-    "test": "mocha \"src/**/*.spec.js\" --require babel-polyfill --require babel-register"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -19,32 +19,30 @@
     "axios": "^0.19.0",
     "body-parser": "~1.19.0",
     "cookie-parser": "~1.4.4",
+    "core-js": "^3.3.5",
     "debug": "~4.1.1",
     "dotenv": "^8.2.0",
     "express": "~4.17.1",
     "morgan": ">=1.9.1",
     "parse-address": "^1.1.2",
     "pug": "~2.0.4",
+    "regenerator-runtime": "^0.13.3",
     "serve-favicon": "~2.5.0",
     "string-template": "^1.0.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.6.4",
     "@babel/core": "^7.6.4",
     "@babel/preset-env": "^7.6.3",
     "@babel/register": "^7.6.2",
     "apidoc": "^0.17.7",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-plugin-transform-builtin-extend": "^1.1.2",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
     "eslint-config-google": "^0.14.0",
+    "jest": "^24.9.0",
     "mocha": "^6.2.1",
     "nodemon": "^1.19.4",
-    "should": "^13.2.3"
+    "should": "^13.2.3",
+    "supertest": "^4.0.2"
   }
 }

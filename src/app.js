@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 
 import apiRouter from './routes/api';
+import { isModuleSpecifier } from 'C:/Users/jun_e/AppData/Local/Microsoft/TypeScript/3.6/node_modules/@types/babel-types';
 
 const app = express();
 
@@ -35,4 +36,4 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
 });
 
-export default app;
+module.exports = app;

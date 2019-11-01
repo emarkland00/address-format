@@ -33,7 +33,7 @@ const blankLine = '{blankLine}';
 export function getAddressFormatTemplate(iso) {
     const isoUpper = (iso || '').toUpperCase();
     if (!isIsoSupported(isoUpper)) {
-        return [];
+        return {};
     }
 
     const addressFormat = ISO_MAP[isoUpper].format;

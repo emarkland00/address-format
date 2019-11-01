@@ -1,19 +1,19 @@
-import express from 'express';
+import { Router as router } from 'express';
 import { handleResponseAsJson } from '../../middleware/handleResponseAsJson';
-import apiRoute from './api.route.js';
+import apiRoutes from './api.route.js';
 
-const apiRouteMethods = apiRoute();
-const apiRouter = express.Router();
+const routes = apiRoutes();
+const apiRouter = router();
 
 apiRouter.get(
     '/format',
     handleResponseAsJson,
-    apiRouteMethods.getAddressFormat
+    routes.getAddressFormat
 );
 
 apiRouter.get(
     '/parse',
     handleResponseAsJson,
-    apiRouteMethods.parseAddress
+    routes.parseAddress
 );
 export default apiRouter;

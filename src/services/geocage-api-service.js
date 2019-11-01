@@ -1,8 +1,8 @@
-const axios = require('axios');
+import axios from 'axios';
 
-const baseUrl = 'https://api.opencagedata.com';
-const apiPath = '/geocode/v1/json';
-const apiLanguage = 'en';
+const API_URL_BASE = 'https://api.opencagedata.com';
+const API_URL_PATH = '/geocode/v1/json';
+const API_PARAM_LANGUAGE = 'en';
 
 /**
  * An API client for the Geocage Address API
@@ -21,7 +21,7 @@ export function geocageApiService({ apiKey }) {
                 throw Error('Must have a valid query');
             }
 
-            const url = `${baseUrl}${apiPath}?q=${query}&key=${apiKey}&language=${apiLanguage}`;
+            const url = `${API_URL_BASE}${API_URL_PATH}?q=${query}&key=${apiKey}&language=${API_PARAM_LANGUAGE}`;
             return axios.get(url);
         }
     };

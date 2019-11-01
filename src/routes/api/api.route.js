@@ -1,7 +1,18 @@
 import { geocageApiService } from '../../services/geocage-api-service';
-import { getAddressFormatTemplate, parseAddressWithTemplate } from '../../lib/address-format-parser';
+import {
+    getAddressFormatTemplate,
+    parseAddressWithTemplate,
+    isIsoSupported
+} from '../../lib/address-format-parser';
 
 export default () => {
+    const constants = {
+        ISO_CODE_MISSING: 'Please supply an ISO code',
+        ISO_CODE_UNSUPPORTED: 'ISO code is unsupported',
+        SERVER_NOT_CONFIGURED: 'Server not configured for parsing address',
+        PARSE_ADDRESS_MISSING_QUERY: 'Missing query to parse an address',
+    };
+
     /**
      * Gets the address format for the specified iso code
      * @param {*} req - The express request object
@@ -11,15 +22,40 @@ export default () => {
     function getAddressFormat(req, res, next) {
         const iso = req.query.iso;
         if (!iso) {
-            res.status(400).json({
+            res.status(400);
+            res.json({
                 error: 400,
-                message: 'Please supply an ISO code'
+                message: constants.ISO_CODE_MISSING
             });
-        } else {
-            const addressFormatTemplate = getAddressFormatTemplate(iso);
-            res.send(addressFormatTemplate);
+            next();
+            return;
         }
+
+        if (!isIsoSupported(iso)) {
+            res.status(400);
+            res.json({
+                error: 400,
+                message: constants.ISO_CODE_UNSUPPORTED
+            });
+            next();
+            return;
+        }
+
+        const addressFormatTemplate = getAddressFormatTemplate(iso);
+        res.status(200);
+        res.json(addressFormatTemplate);
         next();
+    }
+
+    /**
+     * Gets the API credentials
+     * @return {object} An object containing the API credentials
+     */
+    function getApiCredentials() {
+        console.log('NOT MOCKED');
+        return {
+            apiKey: process.env.API_KEY
+        };
     }
 
     /**
@@ -29,17 +65,22 @@ export default () => {
      * @param {*} next - The function to the next express middleware
      */
     function parseAddress(req, res, next) {
-        const apiKey = process.env.API_KEY;
+        const { apiKey } = getApiCredentials();
         if (!apiKey) {
-            res.status(500).json({
+            res.status(500);
+            res.json({
                 error: 500,
-                message: 'Server not configured for parsing address'
+                message: constants.SERVER_NOT_CONFIGURED
             });
+            next();
+            return;
         }
+
         if (!req.query.query) {
-            res.status(400).json({
+            res.status(400);
+            res.json({
                 error: 400,
-                message: 'Need API and query key to use'
+                message: constants.PARSE_ADDRESS_MISSING_QUERY
             });
             next();
             return;
@@ -109,6 +150,8 @@ export default () => {
 
     return {
         getAddressFormat,
-        parseAddress
+        parseAddress,
+        getApiCredentials,
+        constants
     };
 };
