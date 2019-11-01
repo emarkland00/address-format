@@ -1,13 +1,19 @@
-FROM node:9.2.0-alpine
+FROM node:12-alpine
 
-RUN mkdir -p /usr/app
-WORKDIR /usr/app
+# Install some dev tools
+RUN npm install -g nodemon
 
-COPY src/package.json package.json
-RUN npm install
+# Set up work directory
+RUN mkdir -p /usr/app/src
+COPY . /usr/app
+WORKDIR /usr/app/
+
+# Set up node environment
 ENV NODE_ENV=production
 
-COPY src/ /usr/app/
-CMD ["npm", "start"]
-
 EXPOSE 3000
+
+RUN npm install
+
+# Set up run command
+CMD ["npm", "start"]
