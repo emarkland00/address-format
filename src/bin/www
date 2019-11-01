@@ -8,9 +8,7 @@
 import app from '../app';
 const debug = require('debug')('address-format-project:server');
 import { createServer } from 'http';
-import dotenv from 'dotenv';
 
-dotenv.config();
 
 /**
  * Get port from environment and store in Express.

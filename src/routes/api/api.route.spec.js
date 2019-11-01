@@ -2,14 +2,15 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
+import express from 'express';
 import app from '../../app';
 import request from 'supertest';
-import { constants, getApiCredentials } from './api.route';
-
-// jest.spyOn(routes, 'getApiCredentials').mockReturnValue({});
-jest.mock('getApiCredentials', () => {});
+import apiRouter from '../api/index';
+import apiRoutes from './api.route';
 
 describe('api/api.route', () => {
+    const { constants } = apiRoutes(() => {});
+
     describe('#getAddressFormat', () => {
         it('returns 400 if no iso code is passed in', async () => {
             const response = await request(app).get('/api/format');
@@ -38,9 +39,11 @@ describe('api/api.route', () => {
 
     describe('#parseAddress', () => {
         it('throws an error if the env is not set up an API key', async () => {
-            
+            const routerWithNoApiCredentialsConfigured = apiRouter(() => {});
+            const mockApp = express();
+            mockApp.use('/api', routerWithNoApiCredentialsConfigured);
 
-            const response = await request(app).get('/api/parse');
+            const response = await request(mockApp).get('/api/parse');
             expect(response.statusCode).toEqual(500);
             expect(response.body).toEqual({
                 error: 500,
@@ -48,33 +51,43 @@ describe('api/api.route', () => {
             });
         });
 
-        /*
-        it('throws an error if an empty query is passed in', done => {
-            const apiCredsStub = sinon.stub();
-            sinon.stub(apiRoutes, 'getApiCredentials').callsFake(apiCredsStub);
+        it('throws an error if an empty query is passed in', async () => {
+            const routerWithApiCredentialsConfigured = apiRouter(() => ({ apiKey: 'test_key' }));
+            const mockApp = express();
+            mockApp.use('/api', routerWithApiCredentialsConfigured);
 
-            apiCredsStub.returns({ apiKey: 'test_value ' });
-
-            const req = mockRequest();
-            const res = mockResponse();
-            const mockDone = () => {
-                assert.isTrue(res.status.calledOnceWith(400));
-                assert.isTrue(res.json.calledOnceWith({
-                    error: 400,
-                    message: constants.PARSE_ADDRESS_MISSING_QUERY
-                }));
-                apiCredsStub.restore();
-                done();
-            };
-
-            apiRoutes.parseAddress(req, res, mockDone);
+            const response = await request(mockApp).get('/api/parse');
+            expect(response.statusCode).toEqual(400);
+            expect(response.body).toEqual({
+                error: 400,
+                message: constants.PARSE_ADDRESS_MISSING_QUERY
+            });
         });
 
-        it('parse the address if a non empty query is passed in', done => {
-            assert.isTrue(false);
-            done();
-        });
+        it('parse the address if a non empty query is passed in', async () => {
+            const mockApiClient = query => ({
+                response: {
+                    data: {
+                        results: [
+                            {
+                                components: {
+                                    state_code: 'ZZ'
+                                }
+                            }
+                        ]
+                    }
+                }
+            });
 
+            const routerWithApiCredentialsConfigured = apiRouter(() => ({ apiKey: 'test_key' }), mockApiClient);
+            const mockApp = express();
+            mockApp.use('/api', routerWithApiCredentialsConfigured);
+
+            const response = await request(mockApp).get('/api/parse?query=123');
+            expect(response.statusCode).toEqual(200);
+            expect(response.body).toBeTruthy();
+        });
+/*
         it('parses the address if valid query and supported iso code is passed in', done => {
             assert.isTrue(false);
             done();
