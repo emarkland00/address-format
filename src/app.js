@@ -4,19 +4,16 @@ import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 
-import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
-import apiRouter from './routes/api';
-
-import { geocageApiService } from './services/geocage-api-service';
-
+// enable loading from process.ENV
 import dotenv from 'dotenv';
-
 dotenv.config();
 
+import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
+import apiRouter from './routes/api';
+import { geocageApiService } from './services/geocage-api-service';
+
+
 const app = express();
-
-// app.set('views', path.join(__dirname, 'views'));
-
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
