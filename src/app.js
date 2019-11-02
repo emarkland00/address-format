@@ -1,3 +1,4 @@
+import http from 'http';
 import express from 'express';
 import path from 'path';
 import logger from 'morgan';
@@ -8,36 +9,107 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { normalizePort } from './lib/net';
 import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
 import apiRouter from './routes/api';
 import { geocageApiService } from './services/geocage-api-service';
 
+/**
+ * Creates the express app
+ * @param {int|string} port - The port to run the app on
+ * @return {*} The express app
+ */
+function createApp(port) {
+  const app = express();
+  app.set('port', port);
+  return app;
+}
 
-const app = express();
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+/**
+ * Adds middleware functionality into the express app
+ * @param {any} app - The express app
+ */
+function addMiddleware(app) {
+  app.use(logger('dev'));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(cookieParser());
+  app.use(express.static(path.join(__dirname, 'public')));
+}
 
-const apiClient = geocageApiService(getApiCredentialsFromEnvironment());
-app.use('/api', apiRouter(getApiCredentialsFromEnvironment, apiClient.forwardGeocode));
+/**
+ * Adds route info to the express app
+ * @param {any} app - The express app
+ */
+function addRoutes(app) {
+  const apiClient = geocageApiService(getApiCredentialsFromEnvironment());
+  app.use('/api', apiRouter(getApiCredentialsFromEnvironment, apiClient.forwardGeocode));
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+  // catch 404 and forward to error handler
+  app.use(function(req, res, next) {
+    const err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+  });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // error handler
+  app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-});
+    // render the error page
+    res.status(err.status || 500);
+  });
+}
 
-module.exports = app;
+/**
+ * Runs the express app in an http server
+ * @param {any} app - The express app
+ * @param {int|string} port - The port to run the http server on
+ */
+function startServer(app, port) {
+  const server = http.createServer(app);
+
+  // error handler
+  server.on('error', error => {
+    if (error.syscall !== 'listen') {
+      throw error;
+    }
+
+    const bindType = typeof port === 'string' ? 'Pipe' : 'Port';
+    const bind = `${bindType} ${port}`;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges');
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use');
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
+  });
+
+  // listen handler
+  server.on('listening', () => {
+    const addr = server.address();
+    const bindType = typeof addr === 'string' ? 'pipe' : 'port';
+    const serverPort = addr.port || addr;
+    const msg = `${bindType} ${serverPort}`;
+    console.debug(`Listening on ${msg}`);
+  });
+
+  // start it up
+  server.listen(port);
+}
+
+const port = normalizePort(process.env.PORT || 3000);
+const app = createApp(port);
+addMiddleware(app);
+addRoutes(app);
+startServer(app, port);

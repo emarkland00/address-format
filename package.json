@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "docs": "apidoc -f src/api.js -i routes/ -o public/",
-    "dev": "nodemon --inspect --exec babel-node ./src/bin/www --watch ./src",
-    "start": "babel-node ./src/bin/www",
+    "dev": "nodemon --inspect --exec babel-node ./src/app.js --watch ./src",
+    "start": "babel-node ./src/app.js",
     "test": "jest"
   },
   "repository": {
