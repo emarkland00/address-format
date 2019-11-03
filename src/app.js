@@ -108,6 +108,7 @@ function startServer(app, port) {
     server.listen(port);
 }
 
+// execution script
 const port = normalizePort(process.env.PORT || 3000);
 const app = createApp(port);
 addMiddleware(app);

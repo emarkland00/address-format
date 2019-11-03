@@ -1,7 +1,7 @@
 {
   "name": "address-format-project",
   "version": "2.0.0",
-  "private": true,
+  "private": false,
   "scripts": {
     "docs": "apidoc -f src/api.js -i routes/ -o public/",
     "dev": "nodemon --inspect --exec babel-node ./src/app.js --watch ./src",
