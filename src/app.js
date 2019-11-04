@@ -69,6 +69,7 @@ function addRoutes(app) {
  * Runs the express app in an http server
  * @param {any} app - The express app
  * @param {int|string} port - The port to run the http server on
+ * @return {function} Function that handles gracefully shutting down the http server
  */
 function startServer(app, port) {
     const server = http.createServer(app);
@@ -106,11 +107,32 @@ function startServer(app, port) {
         console.debug(`Listening on ${msg}`);
     });
 
+    let socketId = 0;
+    const sockets = {};
+    server.on('connection', socket => {
+        const id = socketId++;
+        sockets[id] = socket;
+        const deleteSocketOnClose = () => (delete sockets[id]);
+        
+        socket.on('close', deleteSocketOnClose);
+    });
+
     // start it up
     server.listen(port);
+
+    const destroySocket = socket => (socket.destroy());
+    return () => {
+        console.log('Closing server connection');
+        server.close(() => console.log('Server connection closed'));
+        Object.values(sockets).forEach(destroySocket);
+        console.log('All sockets closed');
+    };
 }
 
 // execution script
 const port = normalizePort(process.env.PORT || 3000);
 const app = createApp(port);
-startServer(app, port);
+const shutdownServer = startServer(app, port);
+process.on('SIGINT', shutdownServer);
+
+export default app;
