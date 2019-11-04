@@ -22,6 +22,8 @@ import { geocageApiService } from './services/geocage-api-service';
 function createApp(port) {
     const app = express();
     app.set('port', port);
+    addMiddleware(app);
+    addRoutes(app);
     return app;
 }
 
@@ -111,6 +113,4 @@ function startServer(app, port) {
 // execution script
 const port = normalizePort(process.env.PORT || 3000);
 const app = createApp(port);
-addMiddleware(app);
-addRoutes(app);
 startServer(app, port);
