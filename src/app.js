@@ -113,7 +113,6 @@ function startServer(app, port) {
         const id = socketId++;
         sockets[id] = socket;
         const deleteSocketOnClose = () => (delete sockets[id]);
-        
         socket.on('close', deleteSocketOnClose);
     });
 
@@ -122,10 +121,8 @@ function startServer(app, port) {
 
     const destroySocket = socket => (socket.destroy());
     return () => {
-        console.log('Closing server connection');
         server.close(() => console.log('Server connection closed'));
         Object.values(sockets).forEach(destroySocket);
-        console.log('All sockets closed');
     };
 }
 
