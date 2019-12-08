@@ -1,5 +1,3 @@
-# README #
-
 ## What is this repository for ##
 
 * This repo holds our development for the address format API.
@@ -32,3 +30,16 @@ Note: Our current list of supported countries comes from this link: `https://msd
 
 * `/api/format?iso=<ISO_CODE>` - Gets the API format for a given ISO code. Example (in localhost): `http://localhost:3000/api/format?iso=US`
 * `/api/parse?query=<address>&iso=<ISO_CODE|US>` - Parse the input address in terms of the given ISO code. ISO code defaults to US. Example (in localhost): `http://localhost:3000/api/parse?query=20 W 34th St, New York, NY 10001&iso=jp`
+
+## I like this API but I don't have time to install it myself. Do you have this up on an API I can use? ##
+
+Yes, I do! You can reach this at `https://addressformat.errolmarkland.com/api/`. For example, `https://addressformat.errolmarkland.com/api/format?iso=US`.
+
+That being said, I am paying for all of this out of pocket. If this becomes really popular and the api usage spikes, the bills will spike. If it becomes unaffordable,
+I'd have to take down the site to handle my financial obligations.
+
+If you like this and would like to ensure this remains available, please considering making a small donation.
+
+Bitcoin address: `398EszwW2GBJSQ6TkZVCydyBL1XnaMUPAF`
+ETH address: `0xCf267D1eaBf2d128fED30aE2aa92ea093C11D4A6`
+Litecoin Address: `M8zcAQ4qhZWNfzUZoANUfA1hVYDbNck9fa`
