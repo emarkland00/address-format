@@ -1,6 +1,14 @@
 ## What is this repository for ##
 
-* This repo holds our development for the address format API.
+This repo holds our development for the address format API.
+
+## Why did you create this? ##
+
+Earlier in my career in a previous job, I helped to facilate invoice billing to enterprise clients. The company used to retrieve domestic and foreign clients. Domestic clients were easy to bill because I was familiar with the US address format system but I struggled to quickly interpret foreign address formats.
+
+At that time, I wished there was some kind of service that can take what I know (US address format) and transpose those components into a different countries format. This would help me to understand what are common components and how this should be arranged.
+
+Since I couldn't find anything, I decided why not create it myself. And here we are.
 
 ## How do I get set up ##
 
