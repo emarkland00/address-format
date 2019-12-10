@@ -1,6 +1,6 @@
 ## What is this repository for ##
 
-This repo holds our development for the address format API.
+This repo holds the development for the address format API.
 
 ## Why did you create this? ##
 
@@ -32,7 +32,7 @@ It should be of the form `API_KEY=<pasted_api_key_value>`
 
 ## Notes ##
 
-Note: Our current list of supported countries comes from this link: `https://msdn.microsoft.com/en-us/library/cc195167.aspx`
+Note: The current list of supported countries comes from this link: `https://msdn.microsoft.com/en-us/library/cc195167.aspx`
 
 ## Current API routes ##
 
