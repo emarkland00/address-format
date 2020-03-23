@@ -3,7 +3,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import express from 'express';
-import app from '../../app';
+import { createApp } from '../../init-app';
 import request from 'supertest';
 import apiRouter from '../api/index';
 import apiRoutes from './api.route';
@@ -11,6 +11,12 @@ import apiRoutes from './api.route';
 const { constants } = apiRoutes(() => {});
 
 describe('api/api.route', () => {
+    let app;
+
+    beforeEach(async () => {
+        app = createApp(3000);
+    });
+
     describe('#getAddressFormat', () => {
         it('returns 400 if no iso code is passed in', async () => {
             const response = await request(app).get('/api/format');

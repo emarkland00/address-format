@@ -27,3 +27,6 @@ CMD ["npm", "run", "dev"]
 # BUILD TARGET: production
 FROM base as production
 CMD ["npm", "run", "start"]
+
+FROM base as test
+CMD ["npm", "run", "test"]

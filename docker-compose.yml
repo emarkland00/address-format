@@ -27,6 +27,15 @@ services:
         env_file: 
             - ".env"
         command: npm run dev
+    api-test:
+        build:
+            context: .
+            target: development
+        environment: 
+            - NODE_ENV=development
+        env_file: 
+            - ".env"
+        command: npm run test
 networks:
     api_network:
         driver: bridge
