@@ -50,7 +50,7 @@ I'd have to take down the site to handle my financial obligations.
 
 If you like this and would like to ensure this remains available, please considering making a small donation.
 
-Bitcoin address: `398EszwW2GBJSQ6TkZVCydyBL1XnaMUPAF
+Bitcoin address: `398EszwW2GBJSQ6TkZVCydyBL1XnaMUPAF`
 
 ETH address: `0xCf267D1eaBf2d128fED30aE2aa92ea093C11D4A6`
 
