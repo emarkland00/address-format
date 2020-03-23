@@ -1,13 +1,41 @@
-version: "3"
+version: "3.7"
 
 services:
     api:
-        build: .
+        build:
+            context: .
+            target: production
         ports:
             - "3000:3000"
         networks:
             - api_network
-        command: nodemon --exec babel-node ./src/bin/www --watch ./src
+        environment: 
+            - NODE_ENV=production
+        env_file: 
+            - ".env"
+        command: npm run start
+    api-dev:
+        build:
+            context: .
+            target: development
+        ports:
+            - "3000:3000"
+        networks:
+            - api_network
+        environment: 
+            - NODE_ENV=development
+        env_file: 
+            - ".env"
+        command: npm run dev
+    api-test:
+        build:
+            context: .
+            target: development
+        environment: 
+            - NODE_ENV=development
+        env_file: 
+            - ".env"
+        command: npm run test
 networks:
     api_network:
         driver: bridge
