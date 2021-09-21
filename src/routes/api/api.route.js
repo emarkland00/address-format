@@ -2,7 +2,7 @@ import {
     getAddressFormatTemplate,
     parseAddressWithTemplate,
     isIsoSupported
-} from '../../lib/address-format-parser';
+} from '../../lib/address-format-parser.js';
 
 export default (getApiCredentialsFn, apiClient) => {
     const constants = {

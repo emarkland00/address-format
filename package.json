@@ -1,9 +1,10 @@
 {
   "name": "address-format-project",
   "version": "1.0.0",
+  "type": "module",
   "private": false,
   "scripts": {
-    "dev": "nodemon --inspect --exec babel-node ./src/app.js --watch ./src",
+    "dev": "nodemon --inspect ./src/app.js --watch ./src",
     "start": "babel-node ./src/app.js",
     "test": "jest --runInBand --detectOpenHandles"
   },

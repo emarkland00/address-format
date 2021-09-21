@@ -1,5 +1,5 @@
-import { createApp, startServer } from './init-app';
-import { normalizePort } from './lib/net';
+import { createApp, startServer } from './init-app.js';
+import { normalizePort } from './lib/net.js';
 
 // enable loading from process.ENV
 import dotenv from 'dotenv';

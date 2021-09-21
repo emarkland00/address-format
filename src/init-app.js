@@ -1,17 +1,20 @@
 import http from 'http';
 import express from 'express';
 import path from 'path';
+const __dirname = path.resolve();
+
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+
 
 // enable loading from process.ENV
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
-import apiRouter from './routes/api';
-import { geocageApiService } from './services/geocage-api-service';
+import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials.js';
+import apiRouter from './routes/api/index.js';
+import { geocageApiService } from './services/geocage-api-service.js';
 
 /**
  * Creates the express app
@@ -44,6 +47,16 @@ function addMiddleware(app) {
  */
 function addRoutes(app) {
     const apiClient = geocageApiService(getApiCredentialsFromEnvironment());
+    app.use('/', (req, res, next) => {
+        res.json({
+            name: 'Address Format API',
+            routes: [
+                '/api/format?iso=<ISO_CODE>',
+                '/api/parse?query=<address>&iso=<ISO_CODE>'
+            ]
+        });
+    });
+
     app.use('/api', apiRouter(getApiCredentialsFromEnvironment, apiClient.forwardGeocode));
 
     // catch 404 and forward to error handler

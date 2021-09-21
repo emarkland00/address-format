@@ -3,7 +3,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import express from 'express';
-import { createApp } from '../../init-app';
+import { createApp } from '../../init-app.js';
 import request from 'supertest';
 import apiRouter from '../api/index';
 import apiRoutes from './api.route';

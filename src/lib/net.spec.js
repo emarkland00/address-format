@@ -1,4 +1,4 @@
-import { normalizePort } from './net';
+import { normalizePort } from './net.js';
 
 describe('#net', () => {
     describe('normalizePort', () => {

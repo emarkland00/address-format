@@ -1,5 +1,5 @@
 import { Router as router } from 'express';
-import { handleResponseAsJson } from '../../middleware/handleResponseAsJson';
+import { handleResponseAsJson } from '../../middleware/handleResponseAsJson.js';
 import apiRoutes from './api.route.js';
 
 export default (getApiCredentialsFn, apiClient) => {
