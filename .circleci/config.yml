@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/node:16.9.1-buster
+      - image: circleci/node:16.10.0-buster
     steps:
       - checkout
       - restore_cache:
