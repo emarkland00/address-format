@@ -29,11 +29,11 @@
     "string-template": "1.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.16.7",
+    "@babel/cli": "7.16.8",
     "@babel/core": "7.16.7",
-    "@babel/node": "7.16.7",
-    "@babel/preset-env": "7.16.7",
-    "@babel/register": "7.16.7",
+    "@babel/node": "7.16.8",
+    "@babel/preset-env": "7.16.8",
+    "@babel/register": "7.16.8",
     "chai": "4.3.4",
     "eslint": "8.6.0",
     "eslint-config-google": "0.14.0",
