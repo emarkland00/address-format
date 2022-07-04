@@ -1,10 +1,11 @@
+import { NextFunction } from 'express';
 import {
     getAddressFormatTemplate,
     parseAddressWithTemplate,
     isIsoSupported
 } from '../../lib/address-format-parser';
 
-export default (getApiCredentialsFn, apiClient) => {
+export default (getApiCredentialsFn: () => any, apiClient: any) => {
     const constants = {
         ISO_CODE_MISSING: 'Please supply an ISO code',
         ISO_CODE_UNSUPPORTED: 'ISO code is unsupported',
@@ -18,7 +19,7 @@ export default (getApiCredentialsFn, apiClient) => {
      * @param {*} res - The express response object
      * @param {*} next - The function to the next express middleware
      */
-    function getAddressFormat(req, res, next) {
+    function getAddressFormat(req: any, res: any, next: NextFunction) {
         const iso = req.query.iso;
         if (!iso) {
             res.status(400);
@@ -52,7 +53,7 @@ export default (getApiCredentialsFn, apiClient) => {
      * @param {*} res - The express response object
      * @param {*} next - The function to the next express middleware
      */
-    function parseAddress(req, res, next) {
+    function parseAddress(req: any, res: any, next: NextFunction) {
         const creds = getApiCredentialsFn();
         if (!creds) {
             res.status(500);
@@ -98,7 +99,7 @@ export default (getApiCredentialsFn, apiClient) => {
      * @param {*} next - The function to the next express middleware
      * @return {function} A function that takes a string and performs operations with it
      */
-    function handleResponse(iso, res, next) {
+    function handleResponse(iso: string, res: any, next: NextFunction): {(r:any): void} {
         return response => {
             const apiResponse = response.data;
             // May get multiple results so settle for first one
@@ -116,7 +117,7 @@ export default (getApiCredentialsFn, apiClient) => {
      * @param {*} next - The function to the next express middleware
      * @return {function} A function that handles the error object
      */
-    function handleError(res, next) {
+    function handleError(res: any, next: NextFunction): { (r:any): void} {
         return err => {
             res.status(500);
             res.json({
@@ -132,7 +133,7 @@ export default (getApiCredentialsFn, apiClient) => {
      * @param {object} addressComponents - The address components from the geocage api
      * @return {object} A normalized representation of the address components
      */
-    function normalizeGeocageAddress(addressComponents) {
+    function normalizeGeocageAddress(addressComponents: any) {
         const normalizedAddress = {
             streetNumber: `${addressComponents.house_number || ''}`,
             streetName: addressComponents.road || '',

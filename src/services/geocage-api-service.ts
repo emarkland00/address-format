@@ -10,13 +10,13 @@ const API_PARAM_LANGUAGE = 'en';
  * @return {object} An object containing all possible methods for interacting
  * with the Geocage API
  */
-export function geocageApiService({ apiKey }) {
+export function geocageApiService({ apiKey }: { apiKey: string }) {
     if (!apiKey) {
         throw Error('Must have an API key');
     }
 
     return {
-        forwardGeocode: query => {
+        forwardGeocode: (query: any) => {
             if (!query) {
                 throw Error('Must have a valid query');
             }

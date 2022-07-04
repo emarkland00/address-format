@@ -8,10 +8,10 @@ import request from 'supertest';
 import apiRouter from '../api/index';
 import apiRoutes from './api.route';
 
-const { constants } = apiRoutes(() => {});
+const { constants } = apiRoutes(() => {}, null);
 
 describe('api/api.route', () => {
-    let app;
+    let app: any;
 
     beforeEach(async () => {
         app = createApp(3000);
@@ -52,10 +52,10 @@ describe('api/api.route', () => {
             }
         });
 
-        const createMockApiCredentialsFetcher = (apiKey = null) => () => ({ apiKey });
+        const createMockApiCredentialsFetcher = (apiKey: any = null) => () => ({ apiKey });
 
         it('throws an error if the env is not set up an API key', async () => {
-            const routerWithNoApiCredentialsConfigured = apiRouter(createMockApiCredentialsFetcher(null));
+            const routerWithNoApiCredentialsConfigured = apiRouter(createMockApiCredentialsFetcher(null), null);
             const mockApp = express();
             mockApp.use('/api', routerWithNoApiCredentialsConfigured);
 
@@ -68,7 +68,7 @@ describe('api/api.route', () => {
         });
 
         it('throws an error if an empty query is passed in', async () => {
-            const routerWithApiCredentialsConfigured = apiRouter(createMockApiCredentialsFetcher('test_key'));
+            const routerWithApiCredentialsConfigured = apiRouter(createMockApiCredentialsFetcher('test_key'), null);
             const mockApp = express();
             mockApp.use('/api', routerWithApiCredentialsConfigured);
 

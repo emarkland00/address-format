@@ -1,0 +1,2 @@
+# Ensure that we install a fresh node modules folder
+node_modules

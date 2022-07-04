@@ -30,7 +30,7 @@ const blankLine = '{blankLine}';
 * @param {string} iso - The country ISO code
 * @return {object} - The address format for the specified country
 **/
-export function getAddressFormatTemplate(iso) {
+export function getAddressFormatTemplate(iso: string) {
     const isoUpper = (iso || '').toUpperCase();
     if (!isIsoSupported(isoUpper)) {
         return {};
@@ -38,8 +38,8 @@ export function getAddressFormatTemplate(iso) {
 
     const addressFormat = ISO_MAP[isoUpper].format;
     const templatizedAddress = addressFormat
-        .map((entry, index) => ({ entry, index }))
-        .reduce((overall, cur) => ({
+        .map((entry: any, index: number) => ({ entry, index }))
+        .reduce((overall: any, cur: any) => ({
             ...overall,
             [`line_${cur.index+1}`]: cur.entry.join(' ')
         }), {});
@@ -53,7 +53,7 @@ export function getAddressFormatTemplate(iso) {
  * @param {string} iso - The country code to show the address as
  * @return {object} The object representation of the tempalte
  */
-export function parseAddressWithTemplate(addressFormatOpts, iso) {
+export function parseAddressWithTemplate(addressFormatOpts: any, iso: string) {
     if (!isIsoSupported(iso)) {
         return '';
     }
@@ -68,9 +68,9 @@ export function parseAddressWithTemplate(addressFormatOpts, iso) {
 * @param {object} valuesObject - The values to places into the template
 * @return {object} - The parsed template
 **/
-function parseTemplate(templateObject, valuesObject) {
+function parseTemplate(templateObject: any, valuesObject: any) {
     // list values from template object
-    const templateValues = Object.values(templateObject);
+    const templateValues: any[] = Object.values(templateObject);
 
     // Swap template values with actual non-empty values. Enumerate each line
     const enumeratedParsedValues = templateValues
@@ -86,26 +86,26 @@ function parseTemplate(templateObject, valuesObject) {
     }), {});
 }
 
-let ISO_MAP = null;
+let ISO_MAP: { [x: string]: any } = {};
 
 /**
 * Populates the ISO map
 */
 function populateIsoMap() {
-    if (ISO_MAP) return;
+    if (Object.keys(ISO_MAP).length) return;
 
     ISO_MAP = {};
-    const addressTypeMap = {
-        'string': input => (ISO_MAP[input] || {}).format,
-        'object': input => Array.isArray(input) ? input : null
+    const addressTypeMap: any = {
+        'string': (input: any): any => (ISO_MAP[input] || {}).format,
+        'object': (input: any): any => Array.isArray(input) ? input : null
     };
 
-    const handleAddressOrIso = input => {
-        const fn = addressTypeMap[typeof input] || (_ => null);
+    const handleAddressOrIso = (input: any): any => {
+        const fn: any = addressTypeMap[typeof input] || ((_: any):any => null);
         return fn(input);
     };
 
-    const addIsoToMap = (code, name, addressFormatOrRelatedISO) => {
+    const addIsoToMap = (code: string, name: string, addressFormatOrRelatedISO: string | string[][]) => {
         const format = handleAddressOrIso(addressFormatOrRelatedISO);
         if (!format) return;
         ISO_MAP[code] = { code: code, name: name, format: format };
@@ -340,7 +340,7 @@ function populateIsoMap() {
 * List of supported address formats https://msdn.microsoft.com/en-us/library/cc195167.aspx
 * May add more from http://www.bitboost.com/ref/international-address-formats.html#Formats
 */
-export function isIsoSupported(iso) {
+export function isIsoSupported(iso: string) {
     populateIsoMap();
     return !!ISO_MAP[iso.toUpperCase()];
 };
@@ -362,7 +362,7 @@ export function addressFormatParser() {
 * @param {string} addressPart - The address to mark
 * @return {string} The optional address part
 **/
-function optionalPart(addressPart) {
+function optionalPart(addressPart: string) {
     return '[' + addressPart + ']';
 }
 
@@ -371,7 +371,7 @@ function optionalPart(addressPart) {
  * @param {string} entry - The entry to remove braces from
  * @return {string} The entry without optional braces
  */
-function removeOptionalBraces(entry) {
+function removeOptionalBraces(entry: string) {
     return entry.replace(/\[/gi, '').replace(/\]/g, '');
 }
 
