@@ -7,8 +7,12 @@ RUN apt-get update && apt-get install -y
 ARG NODE_ENV
 ENV NODE_ENV=${NODE_ENV}
 
+ARG PORT=3000
+
 # Set up work directory
 RUN mkdir -p /usr/app/src
+#RUN chown -R node:node /usr/app/*
+#USER node
 COPY . /usr/app
 WORKDIR /usr/app/
 
@@ -16,9 +20,9 @@ WORKDIR /usr/app/
 RUN npm install
 
 # Expose needed ports
-EXPOSE 3000
-RUN chown node /usr/app
-USER node
+EXPOSE ${PORT}
+
+
 
 # BUILD TARGET: development
 FROM base as development
