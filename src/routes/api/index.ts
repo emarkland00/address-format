@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import apiRoutes from './api.route';
+import { GeoCageApiServiceClient } from '../../services/geocage-api-service';
+import { getAddressFormat, parseAddress } from './api.route';
 
-export default (getApiCredentialsFn: any, apiClient: any) => {
+export default (apiClient: GeoCageApiServiceClient) => {
     const router = Router();
-    const routes = apiRoutes(getApiCredentialsFn, apiClient);
-    router.get('/format', routes.getAddressFormat);
-    router.get('/parse', routes.parseAddress);
+    router.get('/format', getAddressFormat);
+    router.get('/parse', parseAddress(apiClient));
 
     return router;
 };
-
-

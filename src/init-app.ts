@@ -13,7 +13,7 @@ import express, { Express, NextFunction, Request, Response, ErrorRequestHandler,
 import { normalizePort } from './lib/net';
 import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
 import apiRouter from './routes/api';
-import { geocageApiService } from './services/geocage-api-service';
+import { GeocageApiService } from './services/geocage-api-service';
 import { handleResponseAsJson } from './middleware/handleResponseAsJson';
 
 export function createAppServer(port: any) {
@@ -57,9 +57,10 @@ function addMiddleware(app: Express): void {
  * @param {any} app - The express app
  */
 function addApiRoutes(app: Express): void {
-    const apiClient = geocageApiService(getApiCredentialsFromEnvironment());
+    const creds = getApiCredentialsFromEnvironment();
+    const service = GeocageApiService.GetInstance(creds.apiKey);
     app.use(handleResponseAsJson);
-    app.use('/api', apiRouter(getApiCredentialsFromEnvironment, apiClient.forwardGeocode));   
+    app.use('/api', apiRouter(service.getClient()));   
 }
 
 function addErrorHandlers(app: Express): void {
