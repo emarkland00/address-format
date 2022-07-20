@@ -117,7 +117,7 @@ describe('api/api.route', () => {
 
             const response = await request(mockApp).get('/api/parse?query=123&iso=XX');
             expect(response.statusCode).toEqual(200);
-            expect(response.body).toBeFalsy();
+            expect(response.body).toEqual({});
         });
     });
 });

@@ -14,6 +14,7 @@ import { normalizePort } from './lib/net';
 import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
 import apiRouter from './routes/api';
 import { geocageApiService } from './services/geocage-api-service';
+import { handleResponseAsJson } from './middleware/handleResponseAsJson';
 
 export function createAppServer(port: any) {
     const app = createApp(port);
@@ -57,6 +58,7 @@ function addMiddleware(app: Express): void {
  */
 function addApiRoutes(app: Express): void {
     const apiClient = geocageApiService(getApiCredentialsFromEnvironment());
+    app.use(handleResponseAsJson);
     app.use('/api', apiRouter(getApiCredentialsFromEnvironment, apiClient.forwardGeocode));   
 }
 
