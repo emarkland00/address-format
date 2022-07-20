@@ -1,29 +1,36 @@
 import http from 'http';
-import express, { Express, NextFunction } from 'express';
+import { Socket } from 'net';
 import path from 'path';
-import logger from 'morgan';
-import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
 
 // enable loading from process.ENV
 import dotenv from 'dotenv';
 dotenv.config();
+import logger from 'morgan';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import express, { Express, NextFunction, Request, Response, ErrorRequestHandler, RequestHandler} from 'express';
 
+import { normalizePort } from './lib/net';
 import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
 import apiRouter from './routes/api';
 import { geocageApiService } from './services/geocage-api-service';
-import { AddressInfo, Socket } from 'net';
 
+export function createAppServer(port: any) {
+    const app = createApp(port);
+    return startServer(app, port);
+}
 /**
  * Creates the express app
  * @param {int|string} port - The port to run the app on
  * @return {*} The express app
  */
 export function createApp(port: any) {
-    const app = express(); 
+    port = normalizePort(port);
+    const app: Express = express(); 
     app.set('port', port);
     addMiddleware(app);
-    addRoutes(app);
+    addApiRoutes(app);
+    addErrorHandlers(app);
     return app;
 }
 
@@ -31,37 +38,38 @@ export function createApp(port: any) {
  * Adds middleware functionality into the express app
  * @param {any} app - The express app
  */
-function addMiddleware(app: Express) {
+function addMiddleware(app: Express): void {
     app.use(logger('dev'));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(cookieParser());
     app.use(express.static(path.join(__dirname, 'public')));
+
+    const ignoreFavicon = (req: Request, res: Response) => { 
+        res.status(204).end();
+    };
+    app.get('/favicon.ico', ignoreFavicon);
 }
 
 /**
  * Adds route info to the express app
  * @param {any} app - The express app
  */
-function addRoutes(app: Express) {
+function addApiRoutes(app: Express): void {
     const apiClient = geocageApiService(getApiCredentialsFromEnvironment());
-    app.use('/api', apiRouter(getApiCredentialsFromEnvironment, apiClient.forwardGeocode));
+    app.use('/api', apiRouter(getApiCredentialsFromEnvironment, apiClient.forwardGeocode));   
+}
 
-    // catch 404 and forward to error handler
-    app.use(function(req, res, next: NextFunction) {
-        res.status(404);
-        next(new Error('Not Found'));
-    });
-
-    // error handler
-    app.use(function(err: any, req: any, res: any, next: NextFunction) {
+function addErrorHandlers(app: Express): void {
+    const errorHandlerMiddleWare: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
         // set locals, only providing error in development
         res.locals.message = err.message;
         res.locals.error = req.app.get('env') === 'development' ? err : {};
-
+    
         // render the error page
         res.status(err.status || 500);
-    });
+    };
+    app.use(errorHandlerMiddleWare);
 }
 
 /**
@@ -88,11 +96,10 @@ export function startServer(app: Express, port: any) {
             case 'EACCES':
                 console.error(bind + ' requires elevated privileges');
                 process.exit(1);
-                break;
+
             case 'EADDRINUSE':
                 console.error(bind + ' is already in use');
                 process.exit(1);
-                break;
             default:
                 throw error;
         }
@@ -100,28 +107,22 @@ export function startServer(app: Express, port: any) {
 
     // listen handler
     server.on('listening', () => {
-        const addr = server.address();
-        const bindType = typeof addr === 'string' ? 'pipe' : 'port';
-        const serverPort = (addr as AddressInfo).port || addr || 3000;        
-        const msg = `${bindType} ${serverPort}`;
-        console.debug(`Listening on ${msg}`);
+        console.debug(`Listening on port ${port}`);
     });
 
     let socketId = 0;
     const sockets: { [number: number]: Socket } = {};
-    server.on('connection', socket => {
+    server.on('connection', (socket: Socket) => {
         const id = socketId++;
         sockets[id] = socket;
-        const deleteSocketOnClose = () => (delete sockets[id]);
-        socket.on('close', deleteSocketOnClose);
+        socket.on('close', () => delete sockets[id]);
     });
 
     // start it up
     server.listen(port);
 
-    const destroySocket = (socket: Socket) => (socket.destroy());
     return () => {
         server.close(() => console.log('Server connection closed'));
-        Object.values(sockets).forEach(destroySocket);
+        Object.values(sockets).forEach((socket: Socket) => socket.destroy());
     };
 }

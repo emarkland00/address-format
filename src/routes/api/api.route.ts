@@ -44,7 +44,7 @@ export default (getApiCredentialsFn: () => any, apiClient: any) => {
         const addressFormatTemplate = getAddressFormatTemplate(iso);
         res.status(200);
         res.json(addressFormatTemplate);
-        next();
+        return next();
     }
 
     /**
