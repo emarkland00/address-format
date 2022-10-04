@@ -50,7 +50,7 @@
     "mocha": "10.0.0",
     "nodemon": "2.0.20",
     "should": "13.2.3",
-    "supertest": "6.2.4",
+    "supertest": "6.3.0",
     "ts-jest": "28.0.8",
     "ts-node": "10.9.1",
     "tslib": "2.4.0",
