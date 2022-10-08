@@ -21,7 +21,7 @@
     "core-js": "3.25.5",
     "debug": "4.3.4",
     "dotenv": "16.0.3",
-    "express": "4.18.1",
+    "express": "4.18.2",
     "morgan": "1.10.0",
     "parse-address": "1.1.2",
     "regenerator-runtime": "0.13.9",
