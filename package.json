@@ -41,7 +41,7 @@
     "@types/jest": "28.1.8",
     "@types/morgan": "1.9.6",
     "@types/node": "18.17.17",
-    "@types/string-template": "1.0.2",
+    "@types/string-template": "1.0.3",
     "@types/supertest": "2.0.12",
     "chai": "4.3.8",
     "eslint": "8.49.0",
