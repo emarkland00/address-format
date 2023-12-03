@@ -1,4 +1,4 @@
-FROM node:18.19-buster-slim as base
+FROM node:20.10-buster-slim as base
 
 # Ensure software is up to date
 RUN apt-get update && apt-get install -y
