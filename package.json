@@ -29,10 +29,10 @@
     "string-template": "1.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.24.7",
-    "@babel/core": "7.24.7",
-    "@babel/node": "7.24.7",
-    "@babel/preset-env": "7.24.7",
+    "@babel/cli": "7.24.8",
+    "@babel/core": "7.24.8",
+    "@babel/node": "7.24.8",
+    "@babel/preset-env": "7.24.8",
     "@babel/register": "7.24.6",
     "@tsconfig/recommended": "1.0.7",
     "@types/body-parser": "1.19.5",
