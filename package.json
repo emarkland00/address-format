@@ -42,7 +42,7 @@
     "@types/morgan": "1.9.9",
     "@types/node": "20.14.15",
     "@types/string-template": "1.0.6",
-    "@types/supertest": "2.0.16",
+    "@types/supertest": "6.0.2",
     "chai": "5.1.1",
     "eslint": "8.57.0",
     "eslint-config-google": "0.14.0",
