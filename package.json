@@ -16,7 +16,7 @@
   "homepage": "https://github.com/emarkland00/address-format",
   "dependencies": {
     "axios": "0.28.1",
-    "body-parser": "1.20.2",
+    "body-parser": "1.20.3",
     "cookie-parser": "1.4.6",
     "core-js": "3.38.1",
     "debug": "4.3.7",
