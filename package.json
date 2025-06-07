@@ -39,7 +39,7 @@
     "@types/cookie-parser": "1.4.9",
     "@types/express": "5.0.1",
     "@types/jest": "29.5.14",
-    "@types/morgan": "1.9.9",
+    "@types/morgan": "1.9.10",
     "@types/node": "22.15.30",
     "@types/string-template": "1.0.6",
     "@types/supertest": "2.0.16",
