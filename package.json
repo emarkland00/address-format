@@ -25,7 +25,7 @@
     "morgan": "1.10.0",
     "parse-address": "1.1.2",
     "regenerator-runtime": "0.14.1",
-    "serve-favicon": "2.5.0",
+    "serve-favicon": "2.5.1",
     "string-template": "1.0.0"
   },
   "devDependencies": {
