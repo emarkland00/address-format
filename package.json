@@ -34,7 +34,7 @@
     "@babel/node": "7.27.1",
     "@babel/preset-env": "7.27.2",
     "@babel/register": "7.27.1",
-    "@tsconfig/recommended": "1.0.9",
+    "@tsconfig/recommended": "1.0.10",
     "@types/body-parser": "1.19.6",
     "@types/cookie-parser": "1.4.9",
     "@types/express": "5.0.1",
