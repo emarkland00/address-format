@@ -20,7 +20,7 @@
     "cookie-parser": "1.4.7",
     "core-js": "3.43.0",
     "debug": "4.4.1",
-    "dotenv": "16.5.0",
+    "dotenv": "16.6.0",
     "express": "4.21.2",
     "morgan": "1.10.0",
     "parse-address": "1.1.2",
