@@ -15,7 +15,7 @@
   "license": "MIT",
   "homepage": "https://github.com/emarkland00/address-format",
   "dependencies": {
-    "axios": "0.30.1",
+    "axios": "0.30.2",
     "body-parser": "1.20.3",
     "cookie-parser": "1.4.7",
     "core-js": "3.45.1",
