@@ -47,11 +47,3 @@ Yes, I do! You can reach this at `https://addressformat.errolmarkland.com/api/`.
 
 That being said, I am paying for all of this out of pocket. If this becomes really popular and the api usage spikes, the bills will spike. If it becomes unaffordable,
 I'd have to take down the site to handle my financial obligations.
-
-If you like this and would like to ensure this remains available, please considering making a small donation.
-
-Bitcoin address: `398EszwW2GBJSQ6TkZVCydyBL1XnaMUPAF`
-
-ETH address: `0xCf267D1eaBf2d128fED30aE2aa92ea093C11D4A6`
-
-Litecoin Address: `M8zcAQ4qhZWNfzUZoANUfA1hVYDbNck9fa`
