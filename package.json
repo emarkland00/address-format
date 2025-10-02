@@ -47,7 +47,7 @@
     "eslint": "9.36.0",
     "eslint-config-google": "0.14.0",
     "jest": "29.7.0",
-    "mocha": "11.7.3",
+    "mocha": "11.7.4",
     "nodemon": "3.1.10",
     "should": "13.2.3",
     "supertest": "7.1.4",
