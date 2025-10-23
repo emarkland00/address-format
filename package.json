@@ -30,9 +30,9 @@
   },
   "devDependencies": {
     "@babel/cli": "7.28.3",
-    "@babel/core": "7.28.4",
+    "@babel/core": "7.28.5",
     "@babel/node": "7.28.0",
-    "@babel/preset-env": "7.28.3",
+    "@babel/preset-env": "7.28.5",
     "@babel/register": "7.28.3",
     "@tsconfig/recommended": "1.0.10",
     "@types/body-parser": "1.19.6",
