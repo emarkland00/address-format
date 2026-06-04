@@ -11,5 +11,8 @@ export default defineConfig({
         },
         clearMocks: true,
         exclude: ['build/**', 'coverage/**', 'node_modules/**'],
+        env: {
+            API_KEY: 'test-api-key',
+        },
     },
 });
