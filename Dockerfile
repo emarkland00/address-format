@@ -1,4 +1,4 @@
-FROM node:22-bullseye-slim AS source
+FROM node:24-bullseye-slim AS source
 
 WORKDIR /usr/app
 
@@ -11,7 +11,7 @@ FROM source AS builder
 
 RUN npm run build
 
-FROM node:22-bullseye-slim AS production
+FROM node:24-bullseye-slim AS production
 
 WORKDIR /usr/app
 
