@@ -1,17 +1,13 @@
-// imports needed for jest
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-
 import express from 'express';
 import { createApp } from '../../init-app';
 import request from 'supertest';
 import apiRouter from '../api/index';
 import { constants } from './api.route';
 
-import { AxiosResponse } from 'axios';
+import { AxiosResponse, InternalAxiosRequestConfig, AxiosHeaders } from 'axios';
 
 describe('api/api.route', () => {
-    let app: any;
+    let app: ReturnType<typeof createApp>;
 
     beforeEach(async () => {
         app = createApp(3000);
@@ -44,18 +40,18 @@ describe('api/api.route', () => {
     });
 
     describe('#parseAddress', () => {
-        const createMockClient = (addressComponentsObject = {}) => async () => {
+        const createMockClient = (addressComponentsObject: Record<string, unknown> = {}) => async () => {
             const response: AxiosResponse = {
                 data: {
                     results: [
                         { components: addressComponentsObject }
                     ]
                 },
-                config: {},
+                config: {} as InternalAxiosRequestConfig,
                 status: 0,
                 statusText: '',
-                headers: {}
-            }
+                headers: new AxiosHeaders()
+            };
             return response;
         };
 
@@ -64,9 +60,9 @@ describe('api/api.route', () => {
             const mockApp = express();
             mockApp.use('/api', routerWithApiCredentialsConfigured);
             return mockApp;
-        }
+        };
 
-        it('throws an error if an empty query is passed in', async () => {            
+        it('throws an error if an empty query is passed in', async () => {
             const response = await request(createMockApp()).get('/api/parse');
             expect(response.statusCode).toEqual(400);
             expect(response.body).toEqual({
