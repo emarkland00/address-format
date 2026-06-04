@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Handles the response as a json response
  * @param {*} req - The express request object

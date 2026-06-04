@@ -3,7 +3,7 @@
  * @param {int|string} value - The port value to normalize
  * @return {int|string} The normalized port value or null if port value is invalid
  */
-export function normalizePort(value: any) {
+export function normalizePort(value: unknown) {
     if (!isValidType(value)) {
         return null;
     }
@@ -12,7 +12,7 @@ export function normalizePort(value: any) {
         return value;
     }
 
-    const port = parseInt(value, 10);
+    const port = parseInt(value as string, 10);
     if (port != value) {
         return null;
     }
@@ -21,6 +21,6 @@ export function normalizePort(value: any) {
 }
 
 const validTypes = [ 'number', 'string' ];
-const isValidType = (value: any[]) => validTypes.some(type => type === typeof value);
-const isNamedPipe = (value: any) => isNaN(value);
+const isValidType = (value: unknown): value is string | number => validTypes.some(type => type === typeof value);
+const isNamedPipe = (value: string | number) => isNaN(value as number);
 const isValidPortNumber = (value: number) => value >= 0 && value < 65536;
