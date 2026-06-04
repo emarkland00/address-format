@@ -5,14 +5,14 @@ services:
             context: .
             target: production
         ports:
-            - "3000:3000"
+            - '3000:3000'
         networks:
             - api_network
         environment:
             - NODE_ENV=production
             - PORT=3000
         env_file:
-            - ".env"
+            - '.env'
 networks:
     api_network:
         driver: bridge

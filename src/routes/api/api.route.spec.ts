@@ -19,7 +19,7 @@ describe('api/api.route', () => {
             expect(response.statusCode).toEqual(400);
             expect(response.body).toEqual({
                 error: 400,
-                message: constants.ISO_CODE_MISSING
+                message: constants.ISO_CODE_MISSING,
             });
         });
 
@@ -28,7 +28,7 @@ describe('api/api.route', () => {
             expect(response.statusCode).toEqual(400);
             expect(response.body).toEqual({
                 error: 400,
-                message: constants.ISO_CODE_UNSUPPORTED
+                message: constants.ISO_CODE_UNSUPPORTED,
             });
         });
 
@@ -40,23 +40,24 @@ describe('api/api.route', () => {
     });
 
     describe('#parseAddress', () => {
-        const createMockClient = (addressComponentsObject: Record<string, unknown> = {}) => async () => {
-            const response: AxiosResponse = {
-                data: {
-                    results: [
-                        { components: addressComponentsObject }
-                    ]
-                },
-                config: {} as InternalAxiosRequestConfig,
-                status: 0,
-                statusText: '',
-                headers: new AxiosHeaders()
+        const createMockClient =
+            (addressComponentsObject: Record<string, unknown> = {}) =>
+            async () => {
+                const response: AxiosResponse = {
+                    data: {
+                        results: [{ components: addressComponentsObject }],
+                    },
+                    config: {} as InternalAxiosRequestConfig,
+                    status: 0,
+                    statusText: '',
+                    headers: new AxiosHeaders(),
+                };
+                return response;
             };
-            return response;
-        };
 
         const createMockApp = () => {
-            const routerWithApiCredentialsConfigured = apiRouter(createMockClient());
+            const routerWithApiCredentialsConfigured =
+                apiRouter(createMockClient());
             const mockApp = express();
             mockApp.use('/api', routerWithApiCredentialsConfigured);
             return mockApp;
@@ -67,25 +68,30 @@ describe('api/api.route', () => {
             expect(response.statusCode).toEqual(400);
             expect(response.body).toEqual({
                 error: 400,
-                message: constants.PARSE_ADDRESS_MISSING_QUERY
+                message: constants.PARSE_ADDRESS_MISSING_QUERY,
             });
         });
 
         it('parse the address if a non empty query is passed in', async () => {
-            const response = await request(createMockApp()).get('/api/parse?query=123');
+            const response = await request(createMockApp()).get(
+                '/api/parse?query=123'
+            );
             expect(response.statusCode).toEqual(200);
             expect(response.body).toBeTruthy();
         });
 
         it('parses the address if valid query and supported iso code is passed in', async () => {
             const urlWithValidIsoCode = '/api/parse?query=123&iso=US';
-            const response = await request(createMockApp()).get(urlWithValidIsoCode);
+            const response =
+                await request(createMockApp()).get(urlWithValidIsoCode);
             expect(response.statusCode).toEqual(200);
             expect(response.body).toBeTruthy();
         });
 
         it('returns an empty address if valid query is passed in but invalid iso code is passed in', async () => {
-            const response = await request(createMockApp()).get('/api/parse?query=123&iso=XX');
+            const response = await request(createMockApp()).get(
+                '/api/parse?query=123&iso=XX'
+            );
             expect(response.statusCode).toEqual(200);
             expect(response.body).toEqual({});
         });

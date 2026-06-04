@@ -26,6 +26,7 @@ Make **frequent, small commits** as each logical change is completed. Use **Conv
 **Current state:** `package.json` is already modernized with Vitest, `typescript-eslint`, Prettier, and Node 22 engines.
 
 **Required actions:**
+
 - Delete `.eslintrc.json` (superseded by `eslint.config.mjs`).
 - Delete `jest.config.js` (superseded by `vitest.config.ts`).
 - Verify no Babel/Mocha/Jest/Chai references remain anywhere in the repo.
@@ -40,10 +41,11 @@ Make **frequent, small commits** as each logical change is completed. Use **Conv
 **Current state:** `tsconfig.json` is already modernized (`ES2022`, `Node16`, `strict: true`).
 
 **Required actions:**
+
 - No changes to `tsconfig.json` needed.
 - Improve type safety in two specific source files:
-  - `src/routes/api/api.route.ts`: Replace `req: any, res: any` with `Request`, `Response` from `express`.
-  - `src/services/geocage-api-service.ts`: Replace `addressComponents: any` with a defined `OpenCageAddressComponents` interface covering all fields accessed (`house_number`, `road`, `city`, `suburb`, `county`, `town`, `state_code`, `postalCode`/`postcode`, `country`, `ISO_3166-1_alpha-2`, `ISO_3166-1_alpha-3`).
+    - `src/routes/api/api.route.ts`: Replace `req: any, res: any` with `Request`, `Response` from `express`.
+    - `src/services/geocage-api-service.ts`: Replace `addressComponents: any` with a defined `OpenCageAddressComponents` interface covering all fields accessed (`house_number`, `road`, `city`, `suburb`, `county`, `town`, `state_code`, `postalCode`/`postcode`, `country`, `ISO_3166-1_alpha-2`, `ISO_3166-1_alpha-3`).
 
 > **Note:** Other files contain additional `any` types (e.g., `src/lib/net.ts`, `src/init-app.ts`, `src/middleware/handleResponseAsJson.ts`, `src/lib/address-format-parser.ts`). These are **out of scope** for this plan unless explicitly requested.
 
@@ -54,6 +56,7 @@ Make **frequent, small commits** as each logical change is completed. Use **Conv
 **Current state:** Already migrated. `vitest.config.ts` exists and test files use Vitest globals.
 
 **Required actions:**
+
 - Delete `jest.config.js`.
 - No test file changes needed.
 
@@ -64,6 +67,7 @@ Make **frequent, small commits** as each logical change is completed. Use **Conv
 **Current state:** Already migrated to flat config.
 
 **Required actions:**
+
 - Delete `.eslintrc.json` (the old `google` preset with `mocha: true`, `ecmaVersion: 2018`, and `linebreak-style: windows`).
 - Keep the existing `eslint.config.mjs` as-is. It does **not** enforce linebreak-style, which supports both Windows and Unix line endings.
 - Keep the existing `prettier.config.mjs` as-is (`tabWidth: 4`, `singleQuote: true`, `semi: true`).
@@ -75,10 +79,11 @@ Make **frequent, small commits** as each logical change is completed. Use **Conv
 **Current state:** `.github/workflows/run-tests.yml` references non-existent action versions (`@v6`) and tests Node 18.x/20.x/22.x.
 
 **Required actions:**
+
 - Rename `.github/workflows/run-tests.yml` → `.github/workflows/ci.yml`.
 - Fix action versions:
-  - `actions/checkout@v6` → `actions/checkout@v4`
-  - `actions/setup-node@v6` → `actions/setup-node@v4`
+    - `actions/checkout@v6` → `actions/checkout@v4`
+    - `actions/setup-node@v6` → `actions/setup-node@v4`
 - Narrow matrix to Node 22.x (latest stable LTS). **Node 24.x does not exist yet**; upgrade to it when it becomes available.
 - Add `npm run typecheck` and `npm run lint` steps before tests.
 - Keep Codecov upload for Node 22.x only.
@@ -89,35 +94,35 @@ Make **frequent, small commits** as each logical change is completed. Use **Conv
 name: CI
 
 on:
-  push:
-    branches: [master, main, develop]
-  pull_request:
-    branches: [master, main, develop]
+    push:
+        branches: [master, main, develop]
+    pull_request:
+        branches: [master, main, develop]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [22.x]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm test
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          flags: unittests
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                node-version: [22.x]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
+            - run: npm ci
+            - run: npm run typecheck
+            - run: npm run lint
+            - run: npm test
+            - name: Upload coverage
+              uses: codecov/codecov-action@v4
+              with:
+                  files: ./coverage/lcov.info
+                  flags: unittests
+                  fail_ci_if_error: false
+                  token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 **Add `.github/workflows/docker.yml`:**
@@ -126,14 +131,14 @@ Build the Docker image on PRs to catch `Dockerfile` regressions.
 ```yaml
 name: Docker Build
 on:
-  pull_request:
-    branches: [master, main, develop]
+    pull_request:
+        branches: [master, main, develop]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker build --target production .
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - run: docker build --target production .
 ```
 
 ---
@@ -145,39 +150,41 @@ jobs:
 **Required actions:**
 
 ### `Dockerfile`
+
 - Fix base image: `node:24-bullseye-slim` → `node:22-bullseye-slim`.
 - Change `npm install` → `npm ci` for reproducible builds.
 - Fix empty `apt-get install -y` by either adding required packages or removing it.
 - Restructure as a true multi-stage build so the `production` image does not ship dev dependencies:
-  - `base` stage: install build tools, copy source.
-  - `dependencies` stage: run `npm ci`.
-  - `production` stage: copy `node_modules` and build output, run `npm ci --omit=dev`.
+    - `base` stage: install build tools, copy source.
+    - `dependencies` stage: run `npm ci`.
+    - `production` stage: copy `node_modules` and build output, run `npm ci --omit=dev`.
 
 ### `docker-compose.yml`
+
 - Remove deprecated top-level `version: "3.7"` field.
 - Remove the extra services (`api-dev`, `api-test`) and keep only a single `api` service.
 - Simplified `docker-compose.yml` example:
-  ```yaml
-  services:
-    api:
-      container_name: api
-      build:
-        context: .
-        target: production
-      ports:
-        - "3000:3000"
-      networks:
-        - api_network
-      environment:
-        - NODE_ENV=production
-        - PORT=3000
-      env_file:
-        - ".env"
-      command: npm run start
-  networks:
-    api_network:
-      driver: bridge
-  ```
+    ```yaml
+    services:
+        api:
+            container_name: api
+            build:
+                context: .
+                target: production
+            ports:
+                - '3000:3000'
+            networks:
+                - api_network
+            environment:
+                - NODE_ENV=production
+                - PORT=3000
+            env_file:
+                - '.env'
+            command: npm run start
+    networks:
+        api_network:
+            driver: bridge
+    ```
 
 ---
 
@@ -186,6 +193,7 @@ jobs:
 **Current state:** `renovate.json` uses deprecated `config:base` and only auto-merges minor/patch/pin/digest.
 
 **Required actions:**
+
 - Update `renovate.json` to auto-merge all updates (including major) while respecting CI status.
 - Renovate should **not** merge if unit tests fail.
 
@@ -193,26 +201,26 @@ jobs:
 
 ```json
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":automergeAll",
-    ":automergeRequireAllStatusChecks"
-  ],
-  "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true
-  },
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        ":automergeAll",
+        ":automergeRequireAllStatusChecks"
+    ],
+    "lockFileMaintenance": {
+        "enabled": true,
+        "automerge": true
     },
-    {
-      "matchUpdateTypes": ["major"],
-      "automerge": true
-    }
-  ]
+    "packageRules": [
+        {
+            "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+            "automerge": true
+        },
+        {
+            "matchUpdateTypes": ["major"],
+            "automerge": true
+        }
+    ]
 }
 ```
 

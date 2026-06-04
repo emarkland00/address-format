@@ -55,10 +55,10 @@ export class GeocageApiService {
             if (!query) {
                 throw Error('Must have a valid query');
             }
-    
+
             const url = `${API_URL_BASE}${API_URL_PATH}?q=${query}&key=${this.apiKey}&language=${API_PARAM_LANGUAGE}`;
             return axios.get(url);
-        };    
+        };
     }
 
     static GetInstance(apiKey: string): GeocageApiService {
@@ -66,22 +66,30 @@ export class GeocageApiService {
     }
 
     /**
-    * Takes the geocage address representation and normalizes it
-    * @param {object} addressComponents - The address components from the geocage api
-    * @return {object} A normalized representation of the address components
-    */
-    static normalizeGeocageAddress(addressComponents: OpenCageAddressComponents): NormalizedAddress {
-       const normalizedAddress = {
-           streetNumber: `${addressComponents.house_number || ''}`,
-           streetName: addressComponents.road || '',
-           address1: `${addressComponents.house_number || ''} ${addressComponents.road || ''}`.trim(),
-           city: addressComponents.city || addressComponents.suburb || addressComponents.county || addressComponents.town || '',
-           state: addressComponents.state_code || '',
-           postalCode: addressComponents.postalCode || '',
-           country: addressComponents.country || '',
-           countryCode: addressComponents['ISO_3166-1_alpha-2'] || '',
-           countryAbbreviation: addressComponents['ISO_3166-1_alpha-3'],
-       };
-       return normalizedAddress;
-   }
+     * Takes the geocage address representation and normalizes it
+     * @param {object} addressComponents - The address components from the geocage api
+     * @return {object} A normalized representation of the address components
+     */
+    static normalizeGeocageAddress(
+        addressComponents: OpenCageAddressComponents
+    ): NormalizedAddress {
+        const normalizedAddress = {
+            streetNumber: `${addressComponents.house_number || ''}`,
+            streetName: addressComponents.road || '',
+            address1:
+                `${addressComponents.house_number || ''} ${addressComponents.road || ''}`.trim(),
+            city:
+                addressComponents.city ||
+                addressComponents.suburb ||
+                addressComponents.county ||
+                addressComponents.town ||
+                '',
+            state: addressComponents.state_code || '',
+            postalCode: addressComponents.postalCode || '',
+            country: addressComponents.country || '',
+            countryCode: addressComponents['ISO_3166-1_alpha-2'] || '',
+            countryAbbreviation: addressComponents['ISO_3166-1_alpha-3'],
+        };
+        return normalizedAddress;
+    }
 }

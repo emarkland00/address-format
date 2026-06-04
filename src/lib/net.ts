@@ -20,7 +20,8 @@ export function normalizePort(value: unknown) {
     return isValidPortNumber(port) ? port : null;
 }
 
-const validTypes = [ 'number', 'string' ];
-const isValidType = (value: unknown): value is string | number => validTypes.some(type => type === typeof value);
+const validTypes = ['number', 'string'];
+const isValidType = (value: unknown): value is string | number =>
+    validTypes.some((type) => type === typeof value);
 const isNamedPipe = (value: string | number) => isNaN(value as number);
 const isValidPortNumber = (value: number) => value >= 0 && value < 65536;
