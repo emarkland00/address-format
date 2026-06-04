@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
     api:
         container_name: api
@@ -7,42 +5,14 @@ services:
             context: .
             target: production
         ports:
-            - "3000:3000"
+            - '3000:3000'
         networks:
             - api_network
-        environment: 
+        environment:
             - NODE_ENV=production
             - PORT=3000
-        env_file: 
-            - ".env"
-        command: npm run start
-    api-dev:
-        container_name: api-dev
-        build:
-            context: .
-            target: development
-        ports:
-            - "3000:3000"
-        networks:
-            - api_network
-        environment: 
-            - NODE_ENV=development
-            - PORT=3000
-        env_file: 
-            - ".env"
-        command: npm run dev
-        volumes:
-            - ./src:/usr/app/src
-    api-test:
-        container_name: api-test
-        build:
-            context: .
-            target: development
-        environment: 
-            - NODE_ENV=development
-        env_file: 
-            - ".env"
-        command: npm run test
+        env_file:
+            - '.env'
 networks:
     api_network:
         driver: bridge

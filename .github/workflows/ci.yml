@@ -1,0 +1,31 @@
+name: CI
+
+on:
+    push:
+        branches: [master, main, develop]
+    pull_request:
+        branches: [master, main, develop]
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                script: [typecheck, lint, test:coverage]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22.x
+                  cache: 'npm'
+            - run: npm ci
+            - run: npm run ${{ matrix.script }}
+            - name: Upload coverage
+              if: matrix.script == 'test:coverage'
+              uses: codecov/codecov-action@v4
+              with:
+                  files: ./coverage/lcov.info
+                  flags: unittests
+                  fail_ci_if_error: false
+                  token: ${{ secrets.CODECOV_TOKEN }}

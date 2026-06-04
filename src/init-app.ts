@@ -8,7 +8,13 @@ dotenv.config();
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import express, { Express, NextFunction, Request, Response, ErrorRequestHandler, RequestHandler} from 'express';
+import express, {
+    Express,
+    NextFunction,
+    Request,
+    Response,
+    ErrorRequestHandler,
+} from 'express';
 
 import { normalizePort } from './lib/net';
 import { getApiCredentialsFromEnvironment } from './lib/get-api-credentials';
@@ -16,7 +22,7 @@ import apiRouter from './routes/api';
 import { GeocageApiService } from './services/geocage-api-service';
 import { handleResponseAsJson } from './middleware/handleResponseAsJson';
 
-export function createAppServer(port: any) {
+export function createAppServer(port: string | number) {
     const app = createApp(port);
     return startServer(app, port);
 }
@@ -25,10 +31,10 @@ export function createAppServer(port: any) {
  * @param {int|string} port - The port to run the app on
  * @return {*} The express app
  */
-export function createApp(port: any) {
-    port = normalizePort(port);
-    const app: Express = express(); 
-    app.set('port', port);
+export function createApp(port: string | number) {
+    const normalizedPort = normalizePort(port);
+    const app: Express = express();
+    app.set('port', normalizedPort);
     addMiddleware(app);
     addApiRoutes(app);
     addErrorHandlers(app);
@@ -46,7 +52,7 @@ function addMiddleware(app: Express): void {
     app.use(cookieParser());
     app.use(express.static(path.join(__dirname, 'public')));
 
-    const ignoreFavicon = (req: Request, res: Response) => { 
+    const ignoreFavicon = (req: Request, res: Response) => {
         res.status(204).end();
     };
     app.get('/favicon.ico', ignoreFavicon);
@@ -58,17 +64,25 @@ function addMiddleware(app: Express): void {
  */
 function addApiRoutes(app: Express): void {
     const creds = getApiCredentialsFromEnvironment();
+    if (!creds.apiKey) {
+        throw new Error('API_KEY environment variable is required');
+    }
     const service = GeocageApiService.GetInstance(creds.apiKey);
     app.use(handleResponseAsJson);
-    app.use('/api', apiRouter(service.getClient()));   
+    app.use('/api', apiRouter(service.getClient()));
 }
 
 function addErrorHandlers(app: Express): void {
-    const errorHandlerMiddleWare: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
+    const errorHandlerMiddleWare: ErrorRequestHandler = (
+        err: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        req: Request,
+        res: Response,
+        _next: NextFunction // eslint-disable-line @typescript-eslint/no-unused-vars
+    ): void => {
         // set locals, only providing error in development
         res.locals.message = err.message;
         res.locals.error = req.app.get('env') === 'development' ? err : {};
-    
+
         // render the error page
         res.status(err.status || 500);
     };
@@ -81,12 +95,11 @@ function addErrorHandlers(app: Express): void {
  * @param {int|string} port - The port to run the http server on
  * @return {function} Function that handles gracefully shutting down the http server
  */
-export function startServer(app: Express, port: any) {
+export function startServer(app: Express, port: string | number) {
     const server = http.createServer(app);
 
     // error handler
-    server.on('error', (error: any) => {
-        
+    server.on('error', (error: NodeJS.ErrnoException) => {
         if (error.syscall !== 'listen') {
             throw error;
         }
@@ -99,10 +112,12 @@ export function startServer(app: Express, port: any) {
             case 'EACCES':
                 console.error(bind + ' requires elevated privileges');
                 process.exit(1);
+                break;
 
             case 'EADDRINUSE':
                 console.error(bind + ' is already in use');
                 process.exit(1);
+                break;
             default:
                 throw error;
         }

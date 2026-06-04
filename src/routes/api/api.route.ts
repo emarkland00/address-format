@@ -1,10 +1,14 @@
-import { NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import { AxiosResponse } from 'axios';
 import {
     getAddressFormatTemplate,
     parseAddressWithTemplate,
-    isIsoSupported
+    isIsoSupported,
 } from '../../lib/address-format-parser';
-import { GeocageApiService, GeoCageApiServiceClient } from '../../services/geocage-api-service'
+import {
+    GeocageApiService,
+    GeoCageApiServiceClient,
+} from '../../services/geocage-api-service';
 
 export const constants = {
     ISO_CODE_MISSING: 'Please supply an ISO code',
@@ -19,13 +23,17 @@ export const constants = {
  * @param {*} res - The express response object
  * @param {*} next - The function to the next express middleware
  */
-export function getAddressFormat(req: any, res: any, next: NextFunction) {
-    const iso = req.query.iso;
+export function getAddressFormat(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const iso = req.query.iso as string;
     if (!iso) {
         res.status(400);
         res.json({
             error: 400,
-            message: constants.ISO_CODE_MISSING
+            message: constants.ISO_CODE_MISSING,
         });
         next();
         return;
@@ -35,7 +43,7 @@ export function getAddressFormat(req: any, res: any, next: NextFunction) {
         res.status(400);
         res.json({
             error: 400,
-            message: constants.ISO_CODE_UNSUPPORTED
+            message: constants.ISO_CODE_UNSUPPORTED,
         });
         next();
         return;
@@ -54,18 +62,19 @@ export function getAddressFormat(req: any, res: any, next: NextFunction) {
  * @param {*} next - The function to the next express middleware
  */
 export function parseAddress(apiClient: GeoCageApiServiceClient) {
-    return (req: any, res: any, next: NextFunction) => {
+    return (req: Request, res: Response, next: NextFunction) => {
         if (!req.query.query) {
             res.status(400);
             res.json({
                 error: 400,
-                message: constants.PARSE_ADDRESS_MISSING_QUERY
+                message: constants.PARSE_ADDRESS_MISSING_QUERY,
             });
             next();
             return;
         }
 
-        const { query, iso='US' } = req.query;
+        const query = req.query.query as string;
+        const iso = (req.query.iso as string) || 'US';
 
         apiClient(query)
             .then(handleResponse(iso, res, next))
@@ -80,12 +89,18 @@ export function parseAddress(apiClient: GeoCageApiServiceClient) {
  * @param {*} next - The function to the next express middleware
  * @return {function} A function that takes a string and performs operations with it
  */
-function handleResponse(iso: string, res: any, next: NextFunction): {(r:any): void} {
-    return response => {
+function handleResponse(
+    iso: string,
+    res: Response,
+    next: NextFunction
+): { (r: AxiosResponse): void } {
+    return (response) => {
         const apiResponse = response.data;
         // May get multiple results so settle for first one
         const result = apiResponse.results[0];
-        const normalized = GeocageApiService.normalizeGeocageAddress(result.components);
+        const normalized = GeocageApiService.normalizeGeocageAddress(
+            result.components
+        );
         const parsed = parseAddressWithTemplate(normalized, iso);
         res.send(parsed);
         next();
@@ -98,12 +113,15 @@ function handleResponse(iso: string, res: any, next: NextFunction): {(r:any): vo
  * @param {*} next - The function to the next express middleware
  * @return {function} A function that handles the error object
  */
-function handleError(res: any, next: NextFunction): { (r:any): void} {
-    return err => {
+function handleError(
+    res: Response,
+    next: NextFunction
+): { (r: unknown): void } {
+    return (err) => {
         res.status(500);
         res.json({
             error: 500,
-            message: 'Unexpected problem occured trying to query API'
+            message: 'Unexpected problem occured trying to query API',
         });
         console.log(err);
         next(err);

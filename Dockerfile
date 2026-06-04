@@ -1,36 +1,36 @@
-FROM node:24-bullseye-slim as base
+FROM node:22-bullseye-slim AS source
 
-# Ensure software is up to date
-RUN apt-get update && apt-get install -y
+WORKDIR /usr/app
 
-# Set up node environment
-ARG NODE_ENV
-ENV NODE_ENV=${NODE_ENV}
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+FROM source AS builder
+
+RUN npm run build
+
+FROM node:22-bullseye-slim AS production
+
+WORKDIR /usr/app
+
+COPY --chown=node:node package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder --chown=node:node /usr/app/build ./build
+
+USER node
+
+EXPOSE 3000
+
+CMD ["node", "build/app.js"]
+
+FROM source AS development
 
 ARG PORT=3000
+ENV PORT=${PORT}
 
-# Set up work directory
-RUN mkdir -p /usr/app/src
-#RUN chown -R node:node /usr/app/*
-#USER node
-COPY . /usr/app
-WORKDIR /usr/app/
-
-# Install dependencies
-RUN npm install
-
-# Expose needed ports
 EXPOSE ${PORT}
 
-
-
-# BUILD TARGET: development
-FROM base as development
 CMD ["npm", "run", "dev"]
-
-# BUILD TARGET: production
-FROM base as production
-CMD ["npm", "run", "start"]
-
-FROM base as test
-CMD ["npm", "run", "test"]
